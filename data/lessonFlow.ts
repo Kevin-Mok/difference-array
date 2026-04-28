@@ -108,13 +108,13 @@ export const lessonFlow: LessonFlowSummary = {
       objective:
         "Define range update, difference array, delta, boundary mark, and prefix sum before students solve.",
       studentContext: [
-        "A range update means: add or subtract this amount across one continuous block of indexes.",
-        "The direct approach visits every index in the range. That is fine once, but many wide updates can become O(n * m).",
-        "Difference arrays delay the expensive part: record changes first, then rebuild final values later.",
-        "A difference array stores changes between neighboring positions instead of storing final values directly.",
-        "For a concrete array: diff[0] = first value, and diff[i] = current value - previous value.",
-        "A delta is the amount of change being added or subtracted.",
-        "A prefix sum is a running total used to rebuild final values from stored changes.",
+        "A range update means: add or subtract this amount across one continuous block of indexes. Example: on [0, 0, 0, 0, 0], adding +3 from index 1 through 3 gives [0, 3, 3, 3, 0].",
+        "The direct approach visits every index in the range. That is fine once, but many wide updates can become O(n * m). Example: 100 updates across 1,000 indexes can mean up to 100,000 index visits if each update loops through its whole range.",
+        "Difference arrays delay the expensive part: record changes first, then rebuild final values later. Example: for add +3 from index 1 through 3, record a start mark at index 1 and a stop mark at index 4, then rebuild later.",
+        "A difference array stores changes between neighboring positions instead of storing final values directly. Example: nums = [4, 7, 7, 10] becomes diff = [4, 3, 0, 3] because the values start at 4, rise by 3, stay the same, then rise by 3.",
+        "For a concrete array: diff[0] = first value, and diff[i] = current value - previous value. Example: for nums = [4, 7, 7, 10], diff[1] = 7 - 4 = 3 and diff[2] = 7 - 7 = 0.",
+        "A delta is the amount of change being added or subtracted. Example: in the update [1, 3, +3], the delta is +3; in [2, 4, -2], the delta is -2.",
+        "A prefix sum is a running total used to rebuild final values from stored changes. Example: prefix-summing diff = [4, 3, 0, 3] produces running totals 4, 7, 7, 10.",
         "Today the recurring question is: where does a change start, where does it stop, and what does the running total mean now?",
       ],
       teacherNotes: [
