@@ -396,7 +396,7 @@ export const lessonFlow: LessonFlowSummary = {
         "Rebuild with a running total to prove diff stores enough information.",
         "Call out the common mistake of returning final values instead of changes.",
         "Ask why diff[2] is 0 even though nums[2] is 7.",
-        "Connect this problem to the next one: if changes can rebuild values, boundary changes can rebuild range updates.",
+        "Connect this problem to the next one: Problem 1 builds all change entries from final values; Problem 2 places only the two change entries caused by one range update.",
       ],
       prompts: [
         "Build the change list from nums=[4,7,7,10].",
@@ -436,7 +436,7 @@ export const lessonFlow: LessonFlowSummary = {
               expansion: [
                 "Do not just assert that diff is correct.",
                 "Run the prefix sum and recover [4, 7, 7, 10].",
-                "That proof is the bridge to boundary marks.",
+                "That proof is the bridge to boundary marks: if a full change list can rebuild final values, two carefully placed changes can rebuild one range update.",
               ],
             },
           ],
@@ -447,7 +447,7 @@ export const lessonFlow: LessonFlowSummary = {
       problemSlug: "one-range-update-with-boundary-marks",
       deliveryScope: "class",
       coachScript:
-        "Use update=[1,3,3] and make students say where +3 turns on and where it turns off.",
+        "Use update=[2,8,5] and make students say where +5 turns on and where it turns off.",
       studentGoal:
         "Apply one boundary-mark range update and rebuild the final array with prefix sums.",
       workPhaseTimings: {
@@ -457,29 +457,30 @@ export const lessonFlow: LessonFlowSummary = {
       },
       precontextPrompts: [
         "What concept are we learning right now? One range update can be recorded with two boundary marks.",
-        "Why does this matter? We avoid touching every index inside the range immediately.",
-        "Name start, end, and delta from update=[1,3,3].",
+        "How does this connect to Problem 1? We still use `diff` as a change list, but now the range update tells us which two changes to place.",
+        "Why does this matter? Direct update touches 7 cells here, while boundary marking touches 2 positions before the rebuild.",
+        "Name start, end, and delta from update=[2,8,5].",
         "Ask where the update is active before any prefix rebuild happens.",
-        "Ask why index 3 should still receive +3 even though the stop mark is at index 4.",
+        "Ask why index 8 should still receive +5 even though the stop mark is at index 9.",
       ],
       studentWorkPrompts: [
-        "Hint 1: mark the start with diff[1] += 3.",
-        "Hint 2: because the range is inclusive, stop just after the end with diff[4] -= 3.",
+        "Hint 1: mark the start with diff[2] += 5.",
+        "Hint 2: because the range is inclusive, stop just after the end with diff[9] -= 5.",
         "Before returning, prefix-sum the diff array into final values.",
-        "Trace the running total at every index and say whether the +3 is active.",
-        "If your answer is [0,3,3,0,0], check whether you stopped the range too early.",
+        "Trace the running total at every index and say whether the +5 is active.",
+        "If your answer has 0 at index 8, check whether you stopped the range too early.",
       ],
       explanationPrompts: [
-        "Show the two marks [0,3,0,0,-3].",
-        "Trace running totals 0, 3, 3, 3, 0 and connect them to active delta.",
+        "Show the two marks [0,0,5,0,0,0,0,0,0,-5].",
+        "Trace running totals 0, 0, 5, 5, 5, 5, 5, 5, 5, 0 and connect them to active delta.",
         "Review why returning raw diff would be wrong.",
-        "Compare the direct update version against the boundary mark version and count touched indexes.",
+        "Compare direct update touching 7 indexes against boundary marking touching 2 positions.",
         "Ask students to explain the bounds check: when end + 1 equals n, there is no in-array place to turn the delta off.",
       ],
       prompts: [
-        "Where does +3 turn on?",
-        "Where does +3 turn off?",
-        "What does the running total mean at index 2?",
+        "Where does +5 turn on?",
+        "Where does +5 turn off?",
+        "What does the running total mean at index 5?",
       ],
       checkpoints: [
         "Start mark is diff[start] += delta.",
@@ -492,13 +493,13 @@ export const lessonFlow: LessonFlowSummary = {
         "Subtracting at end instead of end + 1.",
         "Forgetting the bounds check.",
         "Returning diff instead of rebuilt result.",
-        "Doing a direct loop over indexes 1 through 3 and missing the boundary-mark idea.",
+        "Doing a direct loop over indexes 2 through 8 and missing the boundary-mark idea.",
         "Updating result before the prefix running total has consumed diff[index].",
       ],
       stretchQuestion:
-        "What changes if the update is [0, 4, 3] and end + 1 is outside the array?",
+        "What changes if the update is [2, 9, 5] and end + 1 is outside the array?",
       successCriteria:
-        "Students can explain why index 4 returns to 0 after the stop mark.",
+        "Students can explain why index 9 returns to 0 after the stop mark.",
       presenterTalkingPointGroups: [
         {
           heading: "Problem 2 teaching rhythm",
@@ -514,9 +515,9 @@ export const lessonFlow: LessonFlowSummary = {
             {
               bullet: "Use the wrong stop mark as a live bug.",
               expansion: [
-                "Pretend to subtract at index 3.",
-                "Rebuild and show index 3 becomes 0 too early.",
-                "Then move the stop to index 4 and rebuild correctly.",
+                "Pretend to subtract at index 8.",
+                "Rebuild and show index 8 becomes 0 too early.",
+                "Then move the stop to index 9 and rebuild correctly.",
               ],
             },
           ],

@@ -93,7 +93,7 @@ npm run dev -- -p 3001
 5. Confirm exactly three problem cards appear.
 6. In presenter view, step through each problem's explanation phase.
 7. Confirm Java is the primary solution and Python is available as a reference.
-8. Confirm the traces end with `[4, 3, 0, 3]`, `[0, 3, 3, 3, 0]`, and `[2, 5, 4, 2, -1]`.
+8. Confirm the traces end with `[4, 3, 0, 3]`, `[0, 0, 5, 5, 5, 5, 5, 5, 5, 0]`, and `[2, 5, 4, 2, -1]`.
 
 ## Repository Map
 
