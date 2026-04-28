@@ -114,7 +114,7 @@ export const lessonFlow: LessonFlowSummary = {
         "A difference array stores changes between neighboring positions instead of storing final values directly. Example: nums = [4, 7, 7, 10] becomes diff = [4, 3, 0, 3] because the values start at 4, rise by 3, stay the same, then rise by 3.",
         "For a concrete array: diff[0] = first value, and diff[i] = current value - previous value. Example: for nums = [4, 7, 7, 10], diff[1] = 7 - 4 = 3 and diff[2] = 7 - 7 = 0.",
         "A delta is the amount of change being added or subtracted. Example: in the update [1, 3, +3], the delta is +3; in [2, 4, -2], the delta is -2.",
-        "A prefix sum is a running total used to rebuild final values from stored changes. Example: prefix-summing diff = [4, 3, 0, 3] produces running totals 4, 7, 7, 10.",
+        "A prefix sum is the rebuild step: scan left to right, keep a running total, and write that running total as the final value at each index. It turns stored changes back into usable values. Example: for diff = [4, 3, 0, 3], start running = 0. At index 0, add 4 -> running 4, write 4. At index 1, add 3 -> running 7, write 7. At index 2, add 0 -> running stays 7, write 7. At index 3, add 3 -> running 10, write 10.",
         "Today the recurring question is: where does a change start, where does it stop, and what does the running total mean now?",
       ],
       teacherNotes: [
@@ -199,18 +199,20 @@ export const lessonFlow: LessonFlowSummary = {
       objective:
         "Introduce the two boundary marks that make one range update cheap.",
       studentContext: [
-        "A boundary mark records a change at the start of a range or just after the end of a range.",
-        "A boundary mark is not the final answer. It is an instruction for the future running total.",
-        "Boundary formula:\ndiff[start] += delta\nif end + 1 < n:\n    diff[end + 1] -= delta",
-        "+delta turns the change on.\n-delta turns the change off.\nThe running total shows which changes are active at each index.",
-        "For add +3 from index 1 through 3, mark +3 at index 1 and -3 at index 4.",
-        "The stop mark goes just after the inclusive end because index end still receives the update.",
+        "An update is a three-number instruction: `[start, end, delta]`. `start` is the first index to change, `end` is the last index to change, and `delta` is the amount to add. Example: with `n = 5`, `update = [1, 3, 3]` means `start = 1`, `end = 3`, and `delta = +3`.",
+        "The goal for `update = [1, 3, 3]`: indexes 1, 2, and 3 receive +3. Starting from `[0, 0, 0, 0, 0]`, the final result should be `[0, 3, 3, 3, 0]`.",
+        "Direct update version: add +3 at index 1, add +3 at index 2, and add +3 at index 3. This example touches 3 cells. If the range had 100 cells, direct update would touch 100 cells.",
+        "Boundary mark version: record only where the +3 starts and where it stops. For `update = [1, 3, 3]`, `start = 1` and `end = 3`, so index 3 is the last index that should still get +3. Add `+3` to `diff[1]` to turn the update on. Add `-3` to `diff[4]` because `end + 1 = 4`, the first index after the range. That is always 2 changes: one start mark and one stop mark.",
+        "Why this is more efficient: direct update work grows with the range length, but boundary mark work stays at 2 changes for one update. A range of 3 cells needs 2 marks. A range of 100 cells still needs 2 marks. The later prefix scan spreads those marks into the final values.",
+        "After marking: `diff[1] += 3` and `diff[4] -= 3`, so `diff = [0, 3, 0, 0, -3]`. This is not the final answer. It is a set of instructions for a left-to-right scan.",
+        "Scan the diff array:\n\nindex | position        | mark | active +3? | final value\n0     | before start    | 0    | no         | 0\n1     | start           | +3   | yes        | 3\n2     | inside range    | 0    | yes        | 3\n3     | end             | 0    | yes        | 3\n4     | end + 1         | -3   | no         | 0",
+        "Key idea: a boundary mark does not say `this index equals this value`. It says `starting here, change what is active while we scan`.",
       ],
       teacherNotes: [
-        "Say inclusive end out loud before using end + 1.",
-        "Ask where the change turns on and where it turns off before showing code.",
-        "Keep students from racing to code by tracing the switch model first.",
-        "Use the phrase active delta while scanning the prefix rebuild.",
+        "Say `start = 1`, `end = 3`, and `delta = +3` before every trace.",
+        "Ask where +3 turns on before showing `diff[1] += 3`.",
+        "Ask where +3 should stop being active before showing `diff[4] -= 3`.",
+        "Keep students on the switch model before naming the formula.",
       ],
       studentMoves: [
         "Identify start, end, and delta from update = [1, 3, 3].",
@@ -218,9 +220,9 @@ export const lessonFlow: LessonFlowSummary = {
         "Predict which indexes will have running total 3 before rebuilding.",
       ],
       checks: [
-        "Why do we subtract at end + 1 instead of end?",
-        "What happens if we subtract at end by mistake?",
-        "When do we skip the stop mark?",
+        "Why is index 3 still active?",
+        "Why does the stop mark go at 4 instead of 3?",
+        "Is `diff = [0, 3, 0, 0, -3]` the final answer?",
       ],
       invariant:
         "The running total includes a delta exactly between its start mark and its stop mark.",
