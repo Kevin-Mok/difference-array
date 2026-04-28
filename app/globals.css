@@ -122,6 +122,13 @@ h5 {
   gap: 0.85rem;
 }
 
+.problem-card__actions,
+.codepad-practice__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .problem-card:hover,
 .detail-card:hover {
   border-color: #ffffff;
@@ -686,7 +693,8 @@ pre {
 
 .workshop-code,
 .workshop-trace,
-.notes-workspace {
+.notes-workspace,
+.codepad-practice {
   display: grid;
   gap: 0.5rem;
 }

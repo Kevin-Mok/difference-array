@@ -10,6 +10,10 @@ export interface DifferenceArraysProblem {
   difficulty: Difficulty;
   conceptFocus: string;
   slug: string;
+  codepadLinks?: {
+    starterUrl: string;
+    solutionUrl: string;
+  };
   description: string;
   conceptBeforeProblem: string[];
   realWorldContext: string[];
@@ -35,6 +39,10 @@ export const problems: DifferenceArraysProblem[] = [
     difficulty: "Easy",
     conceptFocus: "Understand what a difference array stores",
     slug: "build-the-change-list",
+    codepadLinks: {
+      starterUrl: "https://app.coderpad.io/442X6337",
+      solutionUrl: "https://app.coderpad.io/G3EJX4JF",
+    },
     description:
       "Given an integer array `nums`, return its difference array `diff`. Assume `nums` is non-empty.",
     conceptBeforeProblem: [

@@ -100,5 +100,7 @@ npm run dev -- -p 3001
 - `app/`: Next.js layout, page entrypoint, and global styles.
 - `components/`: lesson deck, problem card, code block, and visualizer components.
 - `data/`: typed lesson flow and problem content used by the UI.
+- `docs/codepad-java-exercises.md`: three paste-ready Java CoderPad exercises with JUnit test files.
+- `docs/smoke-tests.md`: manual verification checks for student-facing lesson interactions.
 - `difference-arrays-lesson-plan.md`: original curriculum source.
 - `convert-difference-arrays-lesson-plan-to-site.md`: conversion prompt that guided the site structure.

@@ -36,9 +36,31 @@ export function ProblemCard({ problem }: ProblemCardProps) {
         Complexity: {problem.timeComplexity} time, {problem.spaceComplexity} space
       </p>
 
-      <a href="#lesson-deck" className="problem-card__action">
-        Open in lesson deck
-      </a>
+      <div className="problem-card__actions">
+        <a href="#lesson-deck" className="problem-card__action">
+          Open in lesson deck
+        </a>
+        {problem.codepadLinks ? (
+          <>
+            <a
+              href={problem.codepadLinks.starterUrl}
+              className="problem-card__action"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Try in CoderPad
+            </a>
+            <a
+              href={problem.codepadLinks.solutionUrl}
+              className="problem-card__action"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Solution CoderPad
+            </a>
+          </>
+        ) : null}
+      </div>
     </article>
   );
 }

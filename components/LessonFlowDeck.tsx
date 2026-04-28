@@ -701,6 +701,34 @@ export function LessonFlowDeck() {
                     <pre>{activeProblem.sampleOutput}</pre>
                   </div>
                 </section>
+                {activeProblem.codepadLinks ? (
+                  <section className="content-section codepad-practice">
+                    <div>
+                      <h4>CoderPad practice</h4>
+                      <p className="section-subtitle">
+                        Start with the blank student pad, then compare against the solution pad.
+                      </p>
+                    </div>
+                    <div className="codepad-practice__actions">
+                      <a
+                        href={activeProblem.codepadLinks.starterUrl}
+                        className="problem-card__action"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Open student pad
+                      </a>
+                      <a
+                        href={activeProblem.codepadLinks.solutionUrl}
+                        className="problem-card__action"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Open solution pad
+                      </a>
+                    </div>
+                  </section>
+                ) : null}
                 <section className="problem-part-nav">
                   {problemPhaseOrder.map((phase, index) => (
                     <button
