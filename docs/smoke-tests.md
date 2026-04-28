@@ -1,5 +1,12 @@
 # Smoke Tests
 
+## Lesson Deck Reveal Controls
+
+- **Action:** Open the lesson deck, navigate to any teaching slide with hidden teaching points, and select `Reveal all`.
+  **Expected:** All teaching points for the current slide appear and the progress count matches the total.
+- **Action:** Open a problem phase with prompt reveals visible and select `Reveal all`.
+  **Expected:** All prompts for the current problem phase appear without changing the active slide or phase.
+
 ## Problem 1 CoderPad Links
 
 - **Action:** Open the lesson site, find Problem 1: Build the Change List, and select `Try in CoderPad`.

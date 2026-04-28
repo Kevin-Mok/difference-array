@@ -523,6 +523,11 @@ export function LessonFlowDeck() {
     setRevealIndex((value) => Math.min(value + 1, lessonContext.length - 1));
   };
 
+  const revealAll = () => {
+    if (!lessonContext.length) return;
+    setRevealIndex(lessonContext.length - 1);
+  };
+
   const revealReset = () => {
     setRevealIndex(-1);
   };
@@ -648,6 +653,14 @@ export function LessonFlowDeck() {
                       <button
                         type="button"
                         className="problem-card__action"
+                        onClick={revealAll}
+                        disabled={!canRevealMore}
+                      >
+                        Reveal all
+                      </button>
+                      <button
+                        type="button"
+                        className="problem-card__action"
                         onClick={revealReset}
                         disabled={visibleRevealItemCount <= 0}
                       >
@@ -762,6 +775,14 @@ export function LessonFlowDeck() {
                           disabled={!canRevealMore}
                         >
                           Reveal next
+                        </button>
+                        <button
+                          type="button"
+                          className="problem-card__action"
+                          onClick={revealAll}
+                          disabled={!canRevealMore}
+                        >
+                          Reveal all
                         </button>
                         <button
                           type="button"
