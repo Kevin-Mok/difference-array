@@ -139,3 +139,26 @@ class Solution {
 
 # Line Sweep
 https://www.youtube.com/watch?v=-FxkJiCyg5g&list=PLpIkg8OmuX-IOG_-Bv92l-EhuBQX28LOm
+
+1D - https://leetcode.com/problems/maximum-population-year/description/
+line sweep 1D - https://leetcode.com/problems/meeting-rooms/
+    (Meeting Rooms II) is a medium-difficulty algorithmic problem on LeetCode. It asks for the minimum number of conference rooms required to schedule a list of meetings without time overlap. The task tests mastery of interval scheduling and efficient data-structure use—skills common in software-engineering interviews.
+https://dmoj.ca/problem/ccc26s2
+
+# 1D Problems
+- generate 1D diff array, regen original array using prefix sum
+    - teach
+- Leetcode maximum-population-year
+    - https://leetcode.com/problems/maximum-population-year/description/
+    - Codepad to try
+- CCC 26 S2 - Beams of Light
+    - https://dmoj.ca/problem/ccc26s2
+    - Codepad to solve
+- Meeting Rooms II - 
+  - a medium-difficulty algorithmic 
+  problem on LeetCode. It asks for the minimum number 
+  of conference rooms required to schedule a list of 
+  meetings without time overlap. The task tests mastery 
+  of interval scheduling and efficient data-structure 
+  use—skills common in software-engineering interviews.
+  - Codepad to try
