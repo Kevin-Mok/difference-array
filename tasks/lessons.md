@@ -13,3 +13,5 @@
 - When explaining efficiency, include operation counts that compare direct range-length work against the constant two boundary marks.
 - When moving between lesson problems, explicitly state the bridge: what idea stays the same, what changes, and how the previous problem's artifact is reused.
 - When defining prefix sum for beginners, explain its purpose as the rebuild step and show the scan mechanics: add diff entry to running total, then write the running total as the final value.
+- If a slide objective claims an efficiency benefit, show a direct side-by-side work comparison early on the slide instead of relying on later prose.
+- Avoid wide plain-text tables inside reveal cards; use short grouped lines when the content must fit narrow slide panels.
