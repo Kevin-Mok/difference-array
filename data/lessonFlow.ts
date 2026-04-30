@@ -78,113 +78,89 @@ export type LessonReferenceTable = {
 };
 
 export const lessonFlow: LessonFlowSummary = {
-  classTitle: "Difference Arrays: mark boundaries, then rebuild",
-  totalMinutes: 120,
+  classTitle: "Difference Arrays: Mark Change, Then Rebuild",
+  totalMinutes: 90,
   precheck: [
-    "Students know arrays or lists, loops, zero-based indexes, and simple prefix sums.",
-    "Students can trace a running total from left to right.",
-    "Students do not need any advanced data structures for this lesson.",
+    "Students know arrays/lists, loops, zero-based indexes, and prefix sums.",
+    "Students know basic Big-O vocabulary.",
+    "No advanced data structures are required.",
   ],
   closings: [
-    "Mark where the change starts.",
-    "Mark where the change stops.",
-    "Prefix-sum once to rebuild.",
+    "Diff stores change, not final values.",
+    "Boundary marks and event deltas are delayed work.",
+    "Prefix sums/sweeps rebuild the actual values when needed.",
   ],
   classAgenda: [
     { kind: "lesson", lessonStepId: "opening-theory" },
-    { kind: "problem", problemSlug: "build-the-change-list" },
-    { kind: "lesson", lessonStepId: "boundary-mark-formula" },
-    { kind: "problem", problemSlug: "one-range-update-with-boundary-marks" },
-    { kind: "lesson", lessonStepId: "many-updates-one-rebuild" },
-    { kind: "problem", problemSlug: "multiple-range-updates-one-rebuild" },
+    { kind: "problem", problemSlug: "1d-difference-restore" },
+    { kind: "lesson", lessonStepId: "two-dimensional-difference" },
+    { kind: "problem", problemSlug: "2d-difference-restore" },
+    { kind: "lesson", lessonStepId: "line-sweep" },
+    { kind: "problem", problemSlug: "line-sweep-max-overlap-intro" },
     { kind: "lesson", lessonStepId: "closing-checklist" },
   ],
   lessonSteps: [
     {
       id: "opening-theory",
-      title: "Store changes, not final values",
-      titleTag: "0-10 min",
-      durationMinutes: 10,
+      title: "Store changes first, then reconstruct",
+      titleTag: "0-18 min",
+      durationMinutes: 18,
       objective:
-        "Define range update, difference array, delta, boundary mark, and prefix sum before students solve.",
+        "Define difference array, delta, boundary marks, and reverse reconstruction with a running total.",
       studentContext: [
-        "A range update means: add or subtract this amount across one continuous block of indexes. Example: on [0, 0, 0, 0, 0], adding +3 from index 1 through 3 gives [0, 3, 3, 3, 0].",
-        "The direct approach visits every index in the range. That is fine once, but many wide updates can become O(n * m). Example: 100 updates across 1,000 indexes can mean up to 100,000 index visits if each update loops through its whole range.",
-        "Difference arrays delay the expensive part: record changes first, then rebuild final values later. Example: for add +3 from index 1 through 3, record a start mark at index 1 and a stop mark at index 4, then rebuild later.",
-        "A difference array stores changes between neighboring positions instead of storing final values directly. Example: nums = [4, 7, 7, 10] becomes diff = [4, 3, 0, 3] because the values start at 4, rise by 3, stay the same, then rise by 3.",
-        "For a concrete array: diff[0] = first value, and diff[i] = current value - previous value. Example: for nums = [4, 7, 7, 10], diff[1] = 7 - 4 = 3 and diff[2] = 7 - 7 = 0.",
-        "A delta is the amount of change being added or subtracted. Example: in the update [1, 3, +3], the delta is +3; in [2, 4, -2], the delta is -2.",
-        "A prefix sum is the rebuild step: scan left to right, keep a running total, and write that running total as the final value at each index. It turns stored changes back into usable values. Example: for diff = [4, 3, 0, 3], start running = 0. At index 0, add 4 -> running 4, write 4. At index 1, add 3 -> running 7, write 7. At index 2, add 0 -> running stays 7, write 7. At index 3, add 3 -> running 10, write 10.",
-        "Today the recurring question is: where does a change start, where does it stop, and what does the running total mean now?",
+        "A difference array stores the local change from one index to the next.",
+        "For 1D: diff[0] is the anchor value; diff[i] is the change from nums[i-1] to nums[i].",
+        "To rebuild, keep a running sum while scanning from left to right.",
+        "The same idea extends to 2D with cells around each coordinate.",
       ],
+      referenceTable: {
+        title: "Core identity",
+        columns: ["Operation", "Meaning", "Formula"],
+        rows: [
+          [
+            "1D build",
+            "Local change",
+            "diff[0]=a[0], diff[i]=a[i]-a[i-1]",
+          ],
+          [
+            "1D restore",
+            "Running total",
+            "running += diff[i]; restored[i]=running",
+          ],
+          ["2D boundary", "Store local corner diff", "above-left inclusion-exclusion"] ,
+        ],
+      },
       teacherNotes: [
-        "Start with nums = [4, 7, 7, 10] and ask what changed at each step.",
-        "Keep the word changes visible; students should not call diff the final array.",
-        "Use a vocabulary ladder: final values -> changes -> running total -> rebuilt values.",
-        "After each definition, ask for a student paraphrase before adding the next term.",
-        "Do not introduce advanced data structures; the lesson target is the basic boundary-mark pattern.",
+        "Ask students to classify each array as `change` vs `final` before showing formulas.",
+        "Use one concrete row each: [4, 7, 7, 10] and [1, 3, 6].",
+        "Keep formulas short and repeat the phrase: diff stores changes, restore stores values.",
       ],
       studentMoves: [
-        "Say whether diff stores final values or changes.",
-        "Compute one neighbor difference out loud.",
-        "Explain why one running total can rebuild the values.",
+        "Say what `diff[2] = 0` means in words.",
+        "Name the anchor at index 0 in every restore.",
+        "Explain why `active += delta` is the same pattern across 1D/2D/line sweep.",
       ],
       checks: [
-        "What does diff store: final values or changes? Expected answer: changes.",
-        "Why can repeated direct range updates become slow?",
-        "What does the running total represent during rebuild?",
-      ],
-      invariant:
-        "A prefix sum of the difference array rebuilds the values it represents.",
-      successCriteria:
-        "Students can explain why [4, 3, 0, 3] rebuilds [4, 7, 7, 10].",
-      failurePatterns: [
-        "Students describe diff as a compressed copy of nums instead of a list of changes.",
-        "Students skip diff[0] and then have no starting point for rebuild.",
-      ],
-      sanityChecks: [
-        "Every new term has been used with the same small numeric example.",
-        "Students can say the direction of reconstruction: diff -> prefix sum -> final values.",
+        "Does diff store final values or changes?",
+        "When would a cell with 0 change still matter?",
+        "Why is the running total needed?",
       ],
       presenterTalkingPointGroups: [
         {
-          heading: "Definitions before code",
+          heading: "Terminology reset",
           points: [
             {
-              bullet: "Name each term before students need it.",
+              bullet: "Difference array",
               expansion: [
-                "Range update: one continuous index block receives the same delta.",
-                "Difference array: stores changes between neighboring positions.",
-                "Prefix sum: running total that rebuilds values from changes.",
+                "This is the store of changes between neighboring values.",
+                "Students can recover values with a reverse scan operation.",
               ],
             },
             {
-              bullet: "Connect speed to delayed work.",
+              bullet: "Boundary mark",
               expansion: [
-                "Direct updates spend work immediately across the whole range.",
-                "Difference arrays spend constant work per update boundary.",
-                "The final prefix rebuild is one left-to-right pass.",
-              ],
-            },
-            {
-              bullet: "Keep the first problem concrete.",
-              expansion: [
-                "Use numbers before symbols.",
-                "Ask what changed from the previous index at every row.",
-                "If students say 'it is just another array,' ask what each position means.",
-              ],
-            },
-          ],
-        },
-        {
-          heading: "Recovery prompts",
-          points: [
-            {
-              bullet: "If students mix up final values and changes, rebuild one row.",
-              expansion: [
-                "Point to diff[1] = 3 and ask: is index 1 equal to 3 or did it change by 3?",
-                "Run 4 + 3 = 7 on the board.",
-                "Then ask what diff[2] = 0 means in words.",
+                "A boundary means where a change becomes active or inactive.",
+                "In 1D and line sweep, that is implemented as +delta and -delta events.",
               ],
             },
           ],
@@ -192,137 +168,72 @@ export const lessonFlow: LessonFlowSummary = {
       ],
     },
     {
-      id: "boundary-mark-formula",
-      title: "Turn a range on, then off",
-      titleTag: "34-44 min",
-      durationMinutes: 10,
+      id: "two-dimensional-difference",
+      title: "2D restore with above/left/diagonal",
+      titleTag: "18-45 min",
+      durationMinutes: 27,
       objective:
-        "Show why two boundary marks can be cheaper than directly editing every index in a range.",
+        "Show the 2D inclusion-exclusion reverse formula and the four boundary cases.",
       studentContext: [
-        "An update is a three-number instruction: `[start, end, delta]`. `start` is the first index to change, `end` is the last index to change, and `delta` is the amount to add. Example: with `n = 5`, `update = [1, 3, 3]` means `start = 1`, `end = 3`, and `delta = +3`.",
-        "The goal for `update = [1, 3, 3]`: indexes 1, 2, and 3 receive +3. Starting from `[0, 0, 0, 0, 0]`, the final result should be `[0, 3, 3, 3, 0]`.",
-        "Efficiency comparison:\n\nDirect update:\n- changes every index in the range right away\n- this range: 3 cell edits\n- 100-cell range: 100 cell edits\n\nBoundary marks:\n- changes only the start and stop positions right away\n- this range: 2 diff edits\n- 100-cell range: 2 diff edits",
-        "Direct update version: add +3 at index 1, add +3 at index 2, and add +3 at index 3. It works, but the work grows with the range length because every index inside the range is edited immediately.",
-        "Boundary mark version: record only where the +3 starts and where it stops. For `update = [1, 3, 3]`, `start = 1` and `end = 3`, so index 3 is the last index that should still get +3. Add `+3` to `diff[1]` to turn the update on. Add `-3` to `diff[4]` because `end + 1 = 4`, the first index after the range. That is always 2 changes: one start mark and one stop mark.",
-        "Why this is more efficient: boundary marks delay filling in the repeated values. You pay 2 quick edits now, then the later prefix scan spreads the active +3 across indexes 1, 2, and 3.",
-        "After marking: `diff[1] += 3` and `diff[4] -= 3`, so `diff = [0, 3, 0, 0, -3]`. This is not the final answer. It is a set of instructions for a left-to-right scan.",
-        "Scan the diff array:\n\nindex | position        | mark | active +3? | final value\n0     | before start    | 0    | no         | 0\n1     | start           | +3   | yes        | 3\n2     | inside range    | 0    | yes        | 3\n3     | end             | 0    | yes        | 3\n4     | end + 1         | -3   | no         | 0",
-        "Key idea: a boundary mark does not say `this index equals this value`. It says `starting here, change what is active while we scan`.",
+        "Each cell’s restore uses a local neighborhood: above, left, and diagonal.",
+        "The diagonal is included twice when adding above and left, so subtract it once.",
+        "You need separate handling for (0,0), first row, and first column.",
       ],
       teacherNotes: [
-        "Say `start = 1`, `end = 3`, and `delta = +3` before every trace.",
-        "Make students count edits before naming the formula: direct touches 3 cells here, boundary marks touch 2 positions.",
-        "Ask where +3 turns on before showing `diff[1] += 3`.",
-        "Ask where +3 should stop being active before showing `diff[4] -= 3`.",
-        "Keep students on the switch model before naming the formula.",
+        "Draw the 2x2 cell block whenever discussing diagonal double-counting.",
+        "Ask students to identify which neighbor terms exist at each boundary case.",
+        "Keep the same visual language as the 1D running total.",
       ],
       studentMoves: [
-        "Identify start, end, and delta from update = [1, 3, 3].",
-        "Place the +3 start mark and the -3 stop mark.",
-        "Predict which indexes will have running total 3 before rebuilding.",
+        "Predict the boundary case for each target cell.",
+        "State why diagonal is subtracted in inner cells.",
+        "Restore a small 2x2 grid before scaling up.",
       ],
       checks: [
-        "Why is index 3 still active?",
-        "Why does the stop mark go at 4 instead of 3?",
-        "Is `diff = [0, 3, 0, 0, -3]` the final answer?",
+        "Which boundary case is (0,3)?",
+        "Where does the diagonal term come from?",
+        "What happens if we forget to handle first row separately?",
       ],
-      invariant:
-        "The running total includes a delta exactly between its start mark and its stop mark.",
-      successCriteria:
-        "Students can rebuild [0, 3, 3, 3, 0] from [0, 3, 0, 0, -3].",
       failurePatterns: [
-        "Subtracting at end instead of end + 1.",
-        "Returning raw diff before prefix-sum rebuild.",
-      ],
-      sanityChecks: [
-        "Stop mark is skipped only when end + 1 is outside the array.",
-      ],
-      presenterTalkingPointGroups: [
-        {
-          heading: "Boundary mark mental model",
-          points: [
-            {
-              bullet: "Teach start and stop as a switch.",
-              expansion: [
-                "At start, the delta turns on.",
-                "At end + 1, the delta turns off.",
-                "Every index between those points sees the active running total.",
-              ],
-            },
-            {
-              bullet: "Make off-by-one visible.",
-              expansion: [
-                "Circle index 3 as still inside the update.",
-                "Put the stop mark at 4 and ask why 3 is not the stop.",
-                "If a student says end, test the rebuilt array immediately.",
-              ],
-            },
-          ],
-        },
+        "Applying the inner-cell formula on first row/first column.",
+        "Forgetting to keep (0,0) as a special case.",
       ],
     },
     {
-      id: "many-updates-one-rebuild",
-      title: "Pile up marks, rebuild once",
-      titleTag: "71-81 min",
-      durationMinutes: 10,
+      id: "line-sweep",
+      title: "Closed-interval sweep as active-event counting",
+      titleTag: "45-72 min",
+      durationMinutes: 27,
       objective:
-        "Show that multiple updates share one diff array and one final prefix rebuild.",
+        "Map range overlap to sorted start/stop events and compute max active count correctly with tie order.",
       studentContext: [
-        "The boundary rule stays the same for every update.",
-        "Do not rebuild after every update. Keep all marks in the same diff array.",
-        "Overlaps combine because the running total carries every active delta.",
-        "Negative delta uses the same formula; do not flip the rule by hand.",
-        "The diff array is like a ledger of starts and stops. The prefix pass is when the ledger becomes final values.",
-        "If two updates start or stop at the same index, their boundary marks simply add together.",
+        "Every interval creates an event where overlap increases and where it decreases.",
+        "Closed intervals share the endpoint, so start and end on same coordinate should process in that order.",
+        "The maximum overlap is the peak active count during the sweep.",
       ],
       teacherNotes: [
-        "Ask whether old boundary marks disappear when the next update arrives. Expected answer: no.",
-        "Use the running total column to show overlap instead of explaining it abstractly.",
-        "Make students say 'same diff array' before each new update.",
-        "When delta is negative, slow down and apply the exact same formula in front of the class.",
+        "Make tie-order explicit with a tiny table: start=+1 first, then end=-1.",
+        "Use only one scan after creating 2n events.",
       ],
       studentMoves: [
-        "Apply each update as two possible marks.",
-        "Skip the stop mark when end + 1 equals n.",
-        "Run one prefix-sum rebuild after all marks are present.",
-        "Explain one overlapping index using active deltas.",
+        "Build event list by hand from 2-3 intervals.",
+        "Sort events by coordinate then tie rule.",
+        "Track active count and max together.",
       ],
       checks: [
-        "Do we rebuild after each update or once at the end? Expected answer: once at the end.",
-        "Do earlier boundary marks disappear when a later update is processed?",
-        "Why does negative delta not need a special rule?",
-      ],
-      invariant:
-        "Before rebuild, diff stores all start and stop marks. During rebuild, running is the sum of active marks.",
-      successCriteria:
-        "Students can explain why the sample rebuilds to [2, 5, 4, 2, -1].",
-      failurePatterns: [
-        "Clearing diff between updates.",
-        "Treating negative delta as a special case.",
-      ],
-      sanityChecks: [
-        "Every update changed diff in O(1) except for the final rebuild.",
-        "Students can identify the one skipped stop mark in the sample.",
+        "What would change for half-open intervals?",
+        "Why does same-coordinate ordering change the answer for closed ranges?",
+        "What is the `O(n log n)` source of complexity?",
       ],
       presenterTalkingPointGroups: [
         {
-          heading: "Multiple update pacing",
+          heading: "Tie rule sanity",
           points: [
             {
-              bullet: "Repeat the same two-line rule for every row.",
+              bullet: "Closed interval rule",
               expansion: [
-                "Do not let students invent a new rule for the second or third update.",
-                "Read start, end, delta, then place start and stop marks.",
-                "Only after all marks exist should the prefix rebuild begin.",
-              ],
-            },
-            {
-              bullet: "Use overlap as the payoff.",
-              expansion: [
-                "At index 2, ask which updates are active.",
-                "Compare that answer with the running total 4.",
-                "This is where the structure becomes more than an optimization trick.",
+                "Start must be processed first at same coordinate.",
+                "That ensures the shared endpoint counts for both intervals.",
               ],
             },
           ],
@@ -331,291 +242,171 @@ export const lessonFlow: LessonFlowSummary = {
     },
     {
       id: "closing-checklist",
-      title: "Three-line memory phrase",
-      titleTag: "112-120 min",
-      durationMinutes: 8,
+      title: "Unify the pattern",
+      titleTag: "72-90 min",
+      durationMinutes: 18,
       objective:
-        "Lock in the reusable difference-array pattern.",
+        "Reinforce the invariant that change events delay final writes and restore/sweep performs the reconstruction.",
       studentContext: [
-        "Mark where the change starts.",
-        "Mark where the change stops.",
-        "Prefix-sum once to rebuild.",
-        "Range update -> two boundary marks. All updates -> one prefix rebuild.",
-        "A difference array stores changes, not final values.",
+        "Across all three problems, active state comes from local changes.",
+        "The final answer is always the result of a reconstruction pass.",
+        "Boundary handling and tie rules are the core sources of correctness bugs.",
       ],
       teacherNotes: [
-        "Have students repeat the memory phrase before they leave.",
-        "Ask for one common mistake and one guardrail from each group.",
-        "End by having students classify a new prompt verbally, without solving it.",
-        "If time remains, ask students to describe a bug using the words start mark, stop mark, and rebuild.",
+        "Ask students to summarize all three problems with one sentence.",
+        "Link 2D and line sweep as 1D-same-idea variants in higher dimension or different event space.",
       ],
       studentMoves: [
-        "Recite the three-line pattern.",
-        "Explain the turn-on / turn-off mental model.",
-        "Name the most likely off-by-one bug.",
+        "Write `mark`, `sort`, `rebuild`, `check max` in order.",
+        "Compare one bug from each problem.",
       ],
       checks: [
-        "Can students state the formula and when to skip the stop mark?",
-        "Can students explain why rebuild happens once after all marks?",
+        "Can students name what diff stores across all 3 problems?",
+        "Can they state the line-sweep tie rule in one line?",
       ],
+      sanityChecks: [
+        "If students forget `end + 1` in 1D updates, what breaks?",
+        "If students process end before start in Problem 3, what does max change to?",
+      ],
+      invariant: "Reconstruction is the common recovery step from compact change representation.",
       successCriteria:
-        "Students can solve a basic range-update final-array problem with boundary marks and one rebuild.",
-      failurePatterns: [
-        "Students remember the formula but cannot explain why end + 1 is used.",
-        "Students rebuild too early and lose the many-update advantage.",
-      ],
+        "Students can solve all three sample items and explain the same running-state pattern behind each.",
     },
   ],
   problemWorkshops: [
     {
-      problemSlug: "build-the-change-list",
-      deliveryScope: "class",
+      problemSlug: "1d-difference-restore",
       coachScript:
-        "Use nums=[4,7,7,10] and ask students what changed from the previous index before showing code.",
+        "Use the sample diff, then ask how each running total appears before writing final output.",
       studentGoal:
-        "Build a difference array from final values and explain what each change means.",
+        "Restore the original 1D array from the provided difference array using a prefix sum.",
+      precontextPrompts: [
+        "What does the first diff entry represent?",
+        "How is a diff entry different from a final value?",
+        "Why is a cumulative pass needed?",
+      ],
+      studentWorkPrompts: [
+        "Ask students to compute a running total sequence.",
+        "Remind them to write each running value as the restored cell.",
+        "Skip direct return of diff as final answer.",
+      ],
+      explanationPrompts: [
+        "Walk through running total transitions slowly.",
+        "Show the check: buildDifference(restored) == input diff.",
+        "Point to 0-change entries and explain they preserve previous value.",
+      ],
+      prompts: [
+        "Explain this as applying local changes",
+        "Use sample [4, 3, 0, 3] and the resulting prefix totals",
+      ],
+      checkpoints: [
+        "running starts at 0",
+        "copying running total into restored",
+        "final array equals expected restored output",
+      ],
+      commonBugs: [
+        "Returning `diff`",
+        "Forgetting the anchor and boundary behavior",
+        "Applying subtraction during restore",
+      ],
+      stretchQuestion:
+        "If diff had one more leading zero, what output change?",
+      successCriteria:
+        "Students complete 1D restore and can explain why each step preserves cumulative interpretation.",
+      workPhaseTimings: {
+        precontextMinutes: 4,
+        workMinutes: 9,
+        explanationMinutes: 7,
+      },
+    },
+    {
+      problemSlug: "2d-difference-restore",
+      coachScript:
+        "Focus on neighbor availability first, then apply the one matching boundary formula.",
+      studentGoal:
+        "Restore a 2D matrix from a 2D difference matrix using above/left/diagonal cases.",
+      precontextPrompts: [
+        "Why do we need four boundary cases?",
+        "What happens at (0,0)?",
+        "How is diagonal counted by above and left?",
+      ],
+      studentWorkPrompts: [
+        "Map each target cell to above/left/diagonal existence.",
+        "Calculate first row and first column separately before inner cells.",
+        "Compare one inner formula cell with the sample matrix.",
+      ],
+      explanationPrompts: [
+        "Show formulas on-screen before code.",
+        "Trace one inner cell and one boundary cell.",
+        "Reinforce the round-trip check with buildDifference.",
+      ],
+      prompts: [
+        "Use above + left - diagonal in inner cells",
+        "Handle first row/column as boundary variants",
+      ],
+      checkpoints: [
+        "(0,0), first row, first column, inner formula used in correct places",
+        "Diagonal contribution is subtracted once in inner cells",
+        "Restored matrix matches sample output",
+      ],
+      commonBugs: [
+        "Using inner-cell formula on first row/column",
+        "Forgetting to subtract diagonal",
+        "Swapping row/column in neighbor lookups",
+      ],
+      stretchQuestion:
+        "How would complexity change if sparse storage was required for very large matrices?",
+      successCriteria:
+        "Students can rebuild full sample matrix from the diff sample and defend each boundary case.",
       workPhaseTimings: {
         precontextMinutes: 5,
-        workMinutes: 8,
-        explanationMinutes: 11,
+        workMinutes: 10,
+        explanationMinutes: 8,
       },
-      precontextPrompts: [
-        "What concept are we learning right now? A difference array stores changes between neighboring positions.",
-        "Why does this matter? Later, range updates will become boundary changes instead of full scans.",
-        "Which value must diff[0] keep so prefix rebuild has a starting point?",
-        "Before any code, describe diff[1] in words: is it a value or a change?",
-        "Ask students to predict whether equal neighboring values create a positive change, negative change, or zero.",
-      ],
-      studentWorkPrompts: [
-        "Hint 1: do not copy nums into diff; compare current value with previous value.",
-        "Hint 2: after index 0, every row answers: how much did the value change?",
-        "Trace each index and say whether it starts, rises, stays, or rises again.",
-        "After writing diff, rebuild it with a running total to check your answer.",
-        "If your diff has four values, explain each value in one short sentence.",
-      ],
-      explanationPrompts: [
-        "Show diff[0] = 4, then neighbor changes 3, 0, 3.",
-        "Rebuild with a running total to prove diff stores enough information.",
-        "Call out the common mistake of returning final values instead of changes.",
-        "Ask why diff[2] is 0 even though nums[2] is 7.",
-        "Connect this problem to the next one: Problem 1 builds all change entries from final values; Problem 2 places only the two change entries caused by one range update.",
-      ],
-      prompts: [
-        "Build the change list from nums=[4,7,7,10].",
-        "Explain what diff[2] = 0 means.",
-      ],
-      checkpoints: [
-        "diff[0] keeps nums[0].",
-        "Each later diff value is nums[index] - nums[index - 1].",
-        "Prefix rebuild returns the original numbers.",
-        "A zero in diff means no change from the previous value.",
-      ],
-      commonBugs: [
-        "Copying nums instead of computing neighbor changes.",
-        "Starting the loop at index 0 and reading before the array begins.",
-        "Calling diff the final values.",
-        "Forgetting to use the previous original value when computing each change.",
-      ],
-      stretchQuestion:
-        "Given diff=[4,3,0,3], can you rebuild nums without looking at the original array?",
-      successCriteria:
-        "Students can describe each entry of [4, 3, 0, 3] in plain language.",
-      presenterTalkingPointGroups: [
-        {
-          heading: "Problem 1 teaching rhythm",
-          points: [
-            {
-              bullet: "Make every diff entry verbal.",
-              expansion: [
-                "diff[0] says where the running total starts.",
-                "diff[1] says the value rises by 3.",
-                "diff[2] says the value stays the same.",
-                "diff[3] says the value rises by 3 again.",
-              ],
-            },
-            {
-              bullet: "Use rebuild as the proof.",
-              expansion: [
-                "Do not just assert that diff is correct.",
-                "Run the prefix sum and recover [4, 7, 7, 10].",
-                "That proof is the bridge to boundary marks: if a full change list can rebuild final values, two carefully placed changes can rebuild one range update.",
-              ],
-            },
-          ],
-        },
-      ],
     },
     {
-      problemSlug: "one-range-update-with-boundary-marks",
-      deliveryScope: "class",
+      problemSlug: "line-sweep-max-overlap-intro",
       coachScript:
-        "Use update=[2,8,5] and make students say where +5 turns on and where it turns off.",
-      studentGoal:
-        "Apply one boundary-mark range update and rebuild the final array with prefix sums.",
-      workPhaseTimings: {
-        precontextMinutes: 6,
-        workMinutes: 9,
-        explanationMinutes: 12,
-      },
+        "Turn each interval into events and keep to one sorted pass with active counting.",
+      studentGoal: "Compute max overlap from closed intervals with correct tie handling.",
       precontextPrompts: [
-        "What concept are we learning right now? One range update can be recorded with two boundary marks.",
-        "How does this connect to Problem 1? We still use `diff` as a change list, but now the range update tells us which two changes to place.",
-        "Why does this matter? Direct update touches 7 cells here, while boundary marking touches 2 positions before the rebuild.",
-        "Name start, end, and delta from update=[2,8,5].",
-        "Ask where the update is active before any prefix rebuild happens.",
-        "Ask why index 8 should still receive +5 even though the stop mark is at index 9.",
+        "What is an event in this context?",
+        "Why must start and end deltas be on separate records?",
+        "Why are closed intervals special about same-coordinate ordering?",
       ],
       studentWorkPrompts: [
-        "Hint 1: mark the start with diff[2] += 5.",
-        "Hint 2: because the range is inclusive, stop just after the end with diff[9] -= 5.",
-        "Before returning, prefix-sum the diff array into final values.",
-        "Trace the running total at every index and say whether the +5 is active.",
-        "If your answer has 0 at index 8, check whether you stopped the range too early.",
+        "Build the event list and sort by (point, delta).",
+        "Mark active and max at each step.",
+        "Check off tie cases where three starts and one end share a coordinate.",
       ],
       explanationPrompts: [
-        "Show the two marks [0,0,5,0,0,0,0,0,0,-5].",
-        "Trace running totals 0, 0, 5, 5, 5, 5, 5, 5, 5, 0 and connect them to active delta.",
-        "Review why returning raw diff would be wrong.",
-        "Compare direct update touching 7 indexes against boundary marking touching 2 positions.",
-        "Ask students to explain the bounds check: when end + 1 equals n, there is no in-array place to turn the delta off.",
+        "Explain why `events.sort((x,y)=>x[0]-y[0] || y[1]-x[1])` works.",
+        "Emphasize active update before max check.",
+        "Verify with the provided interval sample gives 4.",
       ],
       prompts: [
-        "Where does +5 turn on?",
-        "Where does +5 turn off?",
-        "What does the running total mean at index 5?",
+        "Start events should be processed first at equal coordinates",
+        "Track active count and max overlap",
       ],
       checkpoints: [
-        "Start mark is diff[start] += delta.",
-        "Stop mark is diff[end + 1] -= delta only when end + 1 is in bounds.",
-        "Final answer comes from prefix-sum rebuild.",
-        "The inclusive end still receives the delta.",
-        "Raw diff and rebuilt result are different arrays with different meanings.",
+        "two events added per interval",
+        "sorted coordinate then tie order",
+        "maxOverlap becomes 4 on sample",
       ],
       commonBugs: [
-        "Subtracting at end instead of end + 1.",
-        "Forgetting the bounds check.",
-        "Returning diff instead of rebuilt result.",
-        "Doing a direct loop over indexes 2 through 8 and missing the boundary-mark idea.",
-        "Updating result before the prefix running total has consumed diff[index].",
+        "End-before-start at same coordinate",
+        "Missing max update after delta application",
+        "Dropping one event from each interval",
       ],
       stretchQuestion:
-        "What changes if the update is [2, 9, 5] and end + 1 is outside the array?",
+        "How would this change if intervals were half-open [start, end)?",
       successCriteria:
-        "Students can explain why index 9 returns to 0 after the stop mark.",
-      presenterTalkingPointGroups: [
-        {
-          heading: "Problem 2 teaching rhythm",
-          points: [
-            {
-              bullet: "Separate marking from rebuilding.",
-              expansion: [
-                "First phase: diff is only marks.",
-                "Second phase: running total turns those marks into values.",
-                "If students return diff, they skipped the second phase.",
-              ],
-            },
-            {
-              bullet: "Use the wrong stop mark as a live bug.",
-              expansion: [
-                "Pretend to subtract at index 8.",
-                "Rebuild and show index 8 becomes 0 too early.",
-                "Then move the stop to index 9 and rebuild correctly.",
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      problemSlug: "multiple-range-updates-one-rebuild",
-      deliveryScope: "class",
-      coachScript:
-        "Use the three updates and ask whether earlier marks stay in diff when the next update arrives.",
-      studentGoal:
-        "Combine several boundary marks in one diff array and reconstruct once.",
+        "Students can explain the event model and compute the sample max overlap.",
       workPhaseTimings: {
-        precontextMinutes: 6,
-        workMinutes: 11,
-        explanationMinutes: 14,
+        precontextMinutes: 5,
+        workMinutes: 10,
+        explanationMinutes: 9,
       },
-      precontextPrompts: [
-        "What concept are we learning right now? Many updates can share one diff array.",
-        "Why does this matter? Work becomes one O(1) mark pair per update plus one rebuild.",
-        "What should we watch while tracing? Overlaps add through the running total.",
-        "Ask students to predict which update will skip a stop mark before calculating it.",
-        "Ask whether negative delta changes the formula or only the arithmetic.",
-      ],
-      studentWorkPrompts: [
-        "Hint 1: handle each update with the same two boundary rules.",
-        "Hint 2: do not clear diff between updates.",
-        "Hint 3: negative delta uses the same formula; do not reverse the rule manually.",
-        "Skip only the stop mark for [2,4,-1] because end + 1 is 5.",
-        "After each update, read the whole diff array out loud before moving on.",
-        "During rebuild, explain index 2 by naming all active updates.",
-      ],
-      explanationPrompts: [
-        "Show diff after each update: [0,3,0,0,-3], then [2,3,0,-2,-3], then [2,3,-1,-2,-3].",
-        "Run one prefix rebuild and read running totals 2, 5, 4, 2, -1.",
-        "Review why rebuilding after every update wastes the main advantage.",
-        "Explain the negative update: adding -1 starts a subtraction, and the stop mark would subtract -1 if in bounds.",
-        "Compare O(n * m) direct updates with O(n + m) boundary marking plus rebuild.",
-        "Ask students to identify the exact point where overlapping updates combine.",
-      ],
-      prompts: [
-        "Apply each update as boundary marks.",
-        "Explain what happens when updates overlap.",
-        "Run one final prefix sum.",
-      ],
-      checkpoints: [
-        "All updates add into the same diff array.",
-        "The last update skips the stop mark because end + 1 is outside the array.",
-        "Only one rebuild happens after all updates are marked.",
-        "Overlapping updates combine through the running total, not through special overlap code.",
-        "Negative delta follows the same start/stop rule.",
-      ],
-      commonBugs: [
-        "Rebuilding after every update.",
-        "Clearing diff between updates.",
-        "Special-casing negative delta incorrectly.",
-        "Subtracting at end instead of end + 1.",
-        "Forgetting that two boundary marks can land on the same index and should add together.",
-        "Skipping the final prefix rebuild because diff already looks meaningful.",
-      ],
-      stretchQuestion:
-        "If a fourth update overlaps all previous updates, what part of the algorithm changes?",
-      successCriteria:
-        "Students can defend the final output [2, 5, 4, 2, -1] from the trace.",
-      presenterTalkingPointGroups: [
-        {
-          heading: "Problem 3 teaching rhythm",
-          points: [
-            {
-              bullet: "Keep the invariant visible.",
-              expansion: [
-                "Before rebuild, diff stores marks only.",
-                "During rebuild, running stores active accumulated change.",
-                "After rebuild, result stores final values.",
-              ],
-            },
-            {
-              bullet: "Use index 2 as the overlap checkpoint.",
-              expansion: [
-                "Ask which updates affect index 2.",
-                "Add +3, +2, and -1 to get 4.",
-                "Then match that to the prefix running total.",
-              ],
-            },
-            {
-              bullet: "Close with complexity.",
-              expansion: [
-                "Each update marks at most two positions.",
-                "The rebuild scans n positions once.",
-                "That is why the total is O(n + m).",
-              ],
-            },
-          ],
-        },
-      ],
     },
   ],
 };

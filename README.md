@@ -102,5 +102,6 @@ npm run dev -- -p 3001
 - `data/`: typed lesson flow and problem content used by the UI.
 - `docs/codepad-java-exercises.md`: three paste-ready Java CoderPad exercises with JUnit test files.
 - `docs/smoke-tests.md`: manual verification checks for student-facing lesson interactions.
-- `difference-arrays-lesson-plan.md`: original curriculum source.
-- `convert-difference-arrays-lesson-plan-to-site.md`: conversion prompt that guided the site structure.
+- `prompts/difference-arrays-lesson-plan.md`: original curriculum source.
+- `prompts/convert-difference-arrays-lesson-plan-to-site.md`: conversion prompt that guided the site structure.
+- `docs/line-sweep-transcript.md`: generated transcript for line-sweep walkthrough content.

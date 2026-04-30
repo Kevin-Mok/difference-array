@@ -15,3 +15,5 @@
 - When defining prefix sum for beginners, explain its purpose as the rebuild step and show the scan mechanics: add diff entry to running total, then write the running total as the final value.
 - If a slide objective claims an efficiency benefit, show a direct side-by-side work comparison early on the slide instead of relying on later prose.
 - Avoid wide plain-text tables inside reveal cards; use short grouped lines when the content must fit narrow slide panels.
+- When a lesson is about reverse operations, keep both directions present (build then restore) before moving to the next abstraction.
+- When user-requested lesson refresh includes a "mega prompt", record the exact attachment list and fixed problem order as part of the requested assets.

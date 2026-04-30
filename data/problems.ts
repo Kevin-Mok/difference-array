@@ -35,355 +35,433 @@ export interface DifferenceArraysProblem {
 export const problems: DifferenceArraysProblem[] = [
   {
     id: 1,
-    title: "Build the Change List",
+    title: "1D Difference + Restore",
     difficulty: "Easy",
-    conceptFocus: "Understand what a difference array stores",
-    slug: "build-the-change-list",
-    codepadLinks: {
-      starterUrl: "https://app.coderpad.io/442X6337",
-      solutionUrl: "https://app.coderpad.io/G3EJX4JF",
-    },
+    conceptFocus: "Understand that a difference array stores changes, then rebuild originals with a prefix sum",
+    slug: "1d-difference-restore",
     description:
-      "Given an integer array `nums`, return its difference array `diff`. Assume `nums` is non-empty.",
+      "Given a non-empty 1D difference array `diff`, return the restored original array.",
     conceptBeforeProblem: [
-      "Before using difference arrays for fast range updates, first understand what the array stores.",
-      "A difference array does not store final values directly. It stores how much each value changed compared with the previous position.",
-      "For this beginner version:\ndiff[0] = nums[0]\ndiff[i] = nums[i] - nums[i - 1]",
-      "The first value is kept because the prefix rebuild needs a starting point.",
-      "This is the same idea as describing a trip by turns and distance changes instead of naming every location again.",
-      "If two neighboring values are equal, the change is 0. That zero is meaningful: it tells the running total to keep going unchanged.",
+      "A difference array stores changes between positions, not final values.",
+      "For an original array `nums`: `diff[0] = nums[0]`, `diff[i] = nums[i] - nums[i - 1]`.",
+      "To recover values, use a running total: start at 0 and add each `diff[i]` from left to right.",
+      "The same lesson source shows a check: build -> diff, then restore -> original.",
     ],
     realWorldContext: [
-      "Imagine a short temperature log: [4, 7, 7, 10].",
-      "Instead of saying every temperature again, you can say: start at 4, go up 3, stay the same, go up 3.",
-      "That change list is the difference array.",
+      "Imagine a daily step total log: [1200, 1300, 1300, 1500].",
+      "You can store this as changes: start at 1200, then +100, then +0, then +200.",
+      "That change list is the difference array; it is shorter conceptually because each entry is local change.",
     ],
     beginnerHint: [
-      "Do not copy the values into `diff`.",
-      "At every index after 0, ask: how much did the value change from the previous index?",
-      "Use the original `nums` values for subtraction. Do not subtract from values you already wrote into `diff`.",
-      "After building `diff`, prefix-sum it back as a self-check.",
+      "At each index, ask: what is the running total after adding this change?",
+      "Do not return `diff` itself.",
+      "`diff` stores changes and the restored array stores concrete values.",
+      "Use this sample: running starts at 0, then add 4, +3, +0, +3.",
     ],
     applyConcept: [
-      "For nums = [4, 7, 7, 10], keep the first value: diff[0] = 4.",
-      "Then compare neighbors: diff[1] = 7 - 4 = 3, diff[2] = 7 - 7 = 0, diff[3] = 10 - 7 = 3.",
-      "So diff = [4, 3, 0, 3]. A running total rebuilds the original values: 4, 7, 7, 10.",
-      "Watch the trace for the moment where the value stays 7. That is exactly why diff[2] is 0.",
-      "This concrete change list is the foundation for the boundary marks in the next two problems: boundary marks are also change entries in `diff`; they are just created from a range update instead of from neighboring final values.",
+      "Input diff: [4, 3, 0, 3]",
+      "Start running = 0.",
+      "Index 0: running = 0 + 4 = 4.",
+      "Index 1: running = 4 + 3 = 7.",
+      "Index 2: running = 7 + 0 = 7.",
+      "Index 3: running = 7 + 3 = 10.",
+      "Result: [4, 7, 7, 10]",
     ],
-    inputSpec: "nums: int[]",
-    outputSpec: "int[] diff",
-    sampleInput: "nums = [4, 7, 7, 10]",
-    sampleOutput: "[4, 3, 0, 3]",
-    javaSolution: `public static int[] buildDifferenceArray(int[] nums) {
-    int[] diff = new int[nums.length];
+    inputSpec: "diff: int[]",
+    outputSpec: "int[] restored",
+    sampleInput: "diff = [4, 3, 0, 3]",
+    sampleOutput: "[4, 7, 7, 10]",
+    javaSolution: `public static int[] restoreFromDifference(int[] diff) {
+        int[] restored = new int[diff.length];
+        int running = 0;
 
-    // The first value gives the prefix rebuild a starting point.
-    diff[0] = nums[0];
+        for (int index = 0; index < diff.length; index++) {
+            // Each diff entry is the change at this index.
+            running += diff[index];
 
-    for (int index = 1; index < nums.length; index++) {
-        diff[index] = nums[index] - nums[index - 1];
+            // Running total is the restored value.
+            restored[index] = running;
+        }
+
+        return restored;
     }
 
-    return diff;
-}`,
-    pythonSolution: `def build_difference_array(nums: list[int]) -> list[int]:
-    diff = [0] * len(nums)
+    public static int[] buildDifference(int[] nums) {
+        int[] diff = new int[nums.length];
+        diff[0] = nums[0];
 
-    # The first value gives the prefix rebuild a starting point.
+        for (int index = 1; index < nums.length; index++) {
+            // Each later entry captures the local change from the previous value.
+            diff[index] = nums[index] - nums[index - 1];
+        }
+
+        return diff;
+    }
+
+    public static boolean roundTripCheck(int[] nums) {
+        int[] diff = buildDifference(nums);
+        int[] restored = restoreFromDifference(diff);
+        return java.util.Arrays.equals(nums, restored);
+    }`,
+    pythonSolution: `def restore_from_difference(diff: list[int]) -> list[int]:
+    restored = [0] * len(diff)
+    running = 0
+
+    for i, change in enumerate(diff):
+        # Add the local change.
+        running += change
+
+        # Running total is the restored value.
+        restored[i] = running
+
+    return restored
+
+
+def build_difference(nums: list[int]) -> list[int]:
+    diff = [0] * len(nums)
     diff[0] = nums[0]
 
-    for index in range(1, len(nums)):
-        diff[index] = nums[index] - nums[index - 1]
+    for i in range(1, len(nums)):
+        # Each position stores the change from previous index.
+        diff[i] = nums[i] - nums[i - 1]
 
-    return diff`,
+    return diff
+
+
+def round_trip_check(nums: list[int]) -> bool:
+    return restore_from_difference(build_difference(nums)) == nums`,
     explanation: [
-      "Create `diff` with the same length as `nums`.",
-      "Store the first value: `diff[0] = nums[0]`.",
-      "For each later index, subtract the previous value from the current value.",
-      "Return `diff`.",
-      "Remember: `diff` stores changes, not final values.",
-      "A quick correctness check is to prefix-sum `diff` and confirm it rebuilds `nums`.",
-      "The important habit is reading each diff entry as a sentence: start here, rise by 3, stay flat, rise by 3.",
+      "Create `restored` with the same length as `diff`.",
+      "Track a `running` total that starts at 0.",
+      "Scan `diff` from left to right.",
+      "At each index, add `diff[i]` into `running`.",
+      "Write `running` into `restored[i]`.",
+      "Return `restored`.",
+      "Optional consistency check: build a new diff from `restored` and compare to input.",
     ],
     traceAscii: [
-      "$ nums = [4, 7, 7, 10]",
-      "> diff[0] = nums[0]",
-      "  diff = [4, 0, 0, 0]",
-      "> diff[1] = nums[1] - nums[0] = 7 - 4 = 3",
-      "  diff = [4, 3, 0, 0]",
-      "> diff[2] = nums[2] - nums[1] = 7 - 7 = 0",
-      "  diff = [4, 3, 0, 0]",
-      "> diff[3] = nums[3] - nums[2] = 10 - 7 = 3",
-      "  diff = [4, 3, 0, 3]",
-      ">= difference array [4, 3, 0, 3]",
+      "$ diff = [4, 3, 0, 3]",
+      "running = 0",
+      "index 0: running = 0 + 4 = 4 -> restored = [4, _, _, _]",
+      "index 1: running = 4 + 3 = 7 -> restored = [4, 7, _, _]",
+      "index 2: running = 7 + 0 = 7 -> restored = [4, 7, 7, _]",
+      "index 3: running = 7 + 3 = 10 -> restored = [4, 7, 7, 10]",
+      "answer = [4, 7, 7, 10]",
     ],
     timeComplexity: "O(n)",
     spaceComplexity: "O(n)",
     commonMistakes: [
-      "Storing `nums[i]` instead of `nums[i] - nums[i - 1]`.",
-      "Forgetting that `diff[0]` is the starting value.",
-      "Starting the loop at index 0 and reading before the array begins.",
-      "Thinking `diff` is the final answer values instead of the change values.",
+      "Returning `diff` instead of `restored`.",
+      "Forgetting `diff[0]` is the starting anchor.",
+      "Starting `running` at `diff[0]` and then also adding `diff[0]` in the loop.",
+      "Treating restore as subtraction instead of addition.",
     ],
   },
   {
     id: 2,
-    title: "One Range Update With Boundary Marks",
+    title: "2D Difference + Restore",
     difficulty: "Easy",
-    conceptFocus: "Apply one range update and rebuild with prefix sums",
-    slug: "one-range-update-with-boundary-marks",
+    conceptFocus: "Use above, left, and diagonal cells to reverse a 2D difference matrix",
+    slug: "2d-difference-restore",
     description:
-      "Given n = 10 and update = [2, 8, 5], return the final zero-filled array after adding 5 from index 2 through index 8, inclusive.",
+      "Given a non-empty 2D difference matrix `diff`, return the restored original matrix `A`.",
     conceptBeforeProblem: [
-      "Now that `diff` stores changes, use it to record a range update cheaply.",
-      "A range update adds or subtracts a delta across one continuous block of indexes.",
-      "Problem 1 built a full `diff` from final values. Problem 2 goes the other direction: start with an empty `diff`, place only the two changes a range creates, then prefix-sum those changes into final values.",
-      "The direct way changes every index inside the range. The difference-array way records only two boundary marks.",
-      "diff[start] += delta\nif end + 1 < n:\n    diff[end + 1] -= delta",
-      "+delta turns the change on.\n-delta turns the change off.\nThe running total shows which changes are active at each index.",
-      "The range end is inclusive, so the update must still be active at `end`. That is why the stop mark belongs at `end + 1`.",
-      "The bounds check matters because a range that reaches the final index has no later position inside the array where the change can turn off.",
+      "The 2D difference build formula is:",
+      "diff[r][c] = A[r][c] - A[r-1][c] - A[r][c-1] + A[r-1][c-1]",
+      "The reverse formula is:",
+      "A[r][c] = diff[r][c] + A[r-1][c] + A[r][c-1] - A[r-1][c-1]",
+      "Boundary cases are explicit: (0,0), first row, first column, then inner cells.",
+      "Diagonal is subtracted because it is counted in both above and left during the reverse scan.",
     ],
     realWorldContext: [
-      "Imagine ten players start with 0 points: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0].",
-      "A bonus gives +5 points to players at indexes 2 through 8.",
-      "Instead of editing indexes 2, 3, 4, 5, 6, 7, and 8 one at a time, mark where the bonus starts and where it stops.",
+      "Think of a city-grid heatmap.",
+      "A reconstructed cell is the total accumulated activity up to that grid coordinate.",
+      "The difference matrix stores only local changes, while restore spreads them into totals.",
     ],
     beginnerHint: [
-      "Read the update as start = 2, end = 8, delta = 5.",
-      "Mark the start first with `diff[2] += 5`.",
-      "Then mark just after the end with `diff[9] -= 5`.",
-      "Finally rebuild with a running total.",
-      "Do not return the boundary marks. They are instructions for rebuilding, not the final values.",
-      "At each index, ask whether +5 is currently active before writing the result value.",
+      "Process cells row by row.",
+      "Ask whether left, above, and diagonal neighbors exist before applying the formula.",
+      "Use the right boundary case for each position.",
+      "For inner cells: add above + left, then subtract diagonal once.",
     ],
     applyConcept: [
-      "Start with diff = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0].",
-      "Apply boundary marks: diff[2] += 5 gives [0, 0, 5, 0, 0, 0, 0, 0, 0, 0], then diff[9] -= 5 gives [0, 0, 5, 0, 0, 0, 0, 0, 0, -5].",
-      "Prefix rebuild produces running values 0, 0, 5, 5, 5, 5, 5, 5, 5, 0.",
-      "Final array: [0, 0, 5, 5, 5, 5, 5, 5, 5, 0].",
-      "Indexes 2 through 8 share the same active +5 because no stop mark has been reached yet.",
-      "Index 9 returns to 0 because the -5 cancels the active +5.",
-      "Direct update would touch 7 cells, but the boundary-mark update touches 2 positions before the rebuild.",
+      "Original A:",
+      "[[1, 3, 6], [2, 6, 10], [5, 12, 20]]",
+      "Build diff: [[1, 2, 3], [1, 2, 1], [3, 3, 4]]",
+      "Restore check:",
+      "(0,0) -> 1",
+      "first row: 1+2=3, 3+3=6",
+      "first column: 1+1=2, 2+3=5",
+      "inner: 2+3+2-1=6, 1+6+6-3=10, 3+6+10-6=20",
+      "Answer: [[1, 3, 6], [2, 6, 10], [5, 12, 20]]",
     ],
-    inputSpec: "n: int; update: int[] in the form [start, end, delta]",
-    outputSpec: "int[] final values after the update",
-    sampleInput: "n = 10\nupdate = [2, 8, 5]",
-    sampleOutput: "[0, 0, 5, 5, 5, 5, 5, 5, 5, 0]",
-    javaSolution: `public static int[] applyOneRangeUpdate(int n, int[] update) {
-    int[] diff = new int[n];
+    inputSpec: "diff: int[][]",
+    outputSpec: "int[][] restored",
+    sampleInput: `diff = [[1, 2, 3],
+ [1, 2, 1],
+ [3, 3, 4]]`,
+    sampleOutput: `[[1, 3, 6],
+ [2, 6, 10],
+ [5, 12, 20]]`,
+    javaSolution: `public static int[][] restoreFromDifference(int[][] diff) {
+        int rows = diff.length;
+        int cols = diff[0].length;
+        int[][] restored = new int[rows][cols];
 
-    int start = update[0];
-    int end = update[1];
-    int delta = update[2];
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                if (row == 0 && col == 0) {
+                    // (0,0): no above, no left, no diagonal.
+                    restored[row][col] = diff[row][col];
+                } else if (row == 0) {
+                    // First row: only the left restored value exists.
+                    restored[row][col] = diff[row][col] + restored[row][col - 1];
+                } else if (col == 0) {
+                    // First column: only the above restored value exists.
+                    restored[row][col] = diff[row][col] + restored[row - 1][col];
+                } else {
+                    // Inner cell: add above + left, then subtract diagonal once.
+                    restored[row][col] =
+                            diff[row][col] + restored[row - 1][col] + restored[row][col - 1] - restored[row - 1][col - 1];
+                }
+            }
+        }
 
-    // Start adding delta at the left boundary.
-    diff[start] += delta;
-
-    // Stop adding delta just after the right boundary.
-    if (end + 1 < n) {
-        diff[end + 1] -= delta;
+        return restored;
     }
 
-    int[] result = new int[n];
-    int running = 0;
+    public static int[][] buildDifference(int[][] original) {
+        int rows = original.length;
+        int cols = original[0].length;
+        int[][] diff = new int[rows][cols];
 
-    for (int index = 0; index < n; index++) {
-        running += diff[index];
-        result[index] = running;
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                if (row == 0 && col == 0) {
+                    // (0,0): first value is the anchor.
+                    diff[row][col] = original[row][col];
+                } else if (row == 0) {
+                    // First row: subtract left.
+                    diff[row][col] = original[row][col] - original[row][col - 1];
+                } else if (col == 0) {
+                    // First column: subtract above.
+                    diff[row][col] = original[row][col] - original[row - 1][col];
+                } else {
+                    // Inner: remove above and left; add diagonal back once.
+                    diff[row][col] =
+                            original[row][col] - original[row - 1][col] - original[row][col - 1] + original[row - 1][col - 1];
+                }
+            }
+        }
+
+        return diff;
     }
 
-    return result;
-}`,
-    pythonSolution: `def apply_one_range_update(n: int, update: list[int]) -> list[int]:
-    diff = [0] * n
+    public static boolean roundTripCheck(int[][] original) {
+        int[][] diff = buildDifference(original);
+        int[][] restored = restoreFromDifference(diff);
+        return java.util.Arrays.deepEquals(original, restored);
+    }`,
+    pythonSolution: `def restore_from_difference(diff: list[list[int]]) -> list[list[int]]:
+    rows, cols = len(diff), len(diff[0])
+    restored = [[0] * cols for _ in range(rows)]
 
-    start = update[0]
-    end = update[1]
-    delta = update[2]
+    for row in range(rows):
+        for col in range(cols):
+            if row == 0 and col == 0:
+                restored[row][col] = diff[row][col]
+            elif row == 0:
+                restored[row][col] = diff[row][col] + restored[row][col - 1]
+            elif col == 0:
+                restored[row][col] = diff[row][col] + restored[row - 1][col]
+            else:
+                # Inner cells add above and left, subtract diagonal once.
+                restored[row][col] = (
+                    diff[row][col]
+                    + restored[row - 1][col]
+                    + restored[row][col - 1]
+                    - restored[row - 1][col - 1]
+                )
 
-    # Start adding delta at the left boundary.
-    diff[start] += delta
+    return restored
 
-    # Stop adding delta just after the right boundary.
-    if end + 1 < n:
-        diff[end + 1] -= delta
 
-    result = [0] * n
-    running = 0
+def build_difference(original: list[list[int]]) -> list[list[int]]:
+    rows, cols = len(original), len(original[0])
+    diff = [[0] * cols for _ in range(rows)]
 
-    for index in range(n):
-        running += diff[index]
-        result[index] = running
+    for row in range(rows):
+        for col in range(cols):
+            if row == 0 and col == 0:
+                diff[row][col] = original[row][col]
+            elif row == 0:
+                diff[row][col] = original[row][col] - original[row][col - 1]
+            elif col == 0:
+                diff[row][col] = original[row][col] - original[row - 1][col]
+            else:
+                diff[row][col] = (
+                    original[row][col]
+                    - original[row - 1][col]
+                    - original[row][col - 1]
+                    + original[row - 1][col - 1]
+                )
 
-    return result`,
+    return diff
+
+
+def round_trip_check(original: list[list[int]]) -> bool:
+    return restore_from_difference(build_difference(original)) == original`,
     explanation: [
-      "Create a zero-filled `diff` array of length `n`.",
-      "Read `start`, `end`, and `delta` from the update.",
-      "Mark where the update starts: `diff[start] += delta`.",
-      "If `end + 1` is inside the array, mark where the update stops: `diff[end + 1] -= delta`.",
-      "Rebuild the final array with a prefix-sum pass.",
-      "Return the rebuilt array, not the raw `diff` array.",
-      "The boundary update is O(1); the rebuild is the single O(n) pass that turns marks into values.",
-      "A useful trace question is: what is active right now, and what mark changed that?",
+      "Create `restored` with same dimensions as `diff`.",
+      "Scan rows left-to-right, top-to-bottom.",
+      "(0,0): copy `diff[0][0]`.",
+      "First row: restore from left neighbor only.",
+      "First column: restore from above neighbor only.",
+      "Inner cell: `diff[r][c] + above + left - diagonal`.",
+      "Return `restored`.",
+      "Optional check: run `buildDifference` on restored and compare to input `diff`.",
     ],
     traceAscii: [
-      "$ n = 10, update = [2, 8, 5]",
-      "> start with zero difference array",
-      "  diff = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]",
-      "> mark start: diff[2] += 5",
-      "  diff = [0, 0, 5, 0, 0, 0, 0, 0, 0, 0]",
-      "> mark stop: diff[9] -= 5",
-      "  diff = [0, 0, 5, 0, 0, 0, 0, 0, 0, -5]",
-      "> prefix rebuild with running total",
-      "  running values = 0, 0, 5, 5, 5, 5, 5, 5, 5, 0",
-      ">= final array [0, 0, 5, 5, 5, 5, 5, 5, 5, 0]",
+      "$ diff =",
+      "  [[1, 2, 3],",
+      "   [1, 2, 1],",
+      "   [3, 3, 4]]",
+      "(0,0): A[0][0] = 1",
+      "first row: A[0][1] = 2 + 1 = 3; A[0][2] = 3 + 3 = 6",
+      "first col: A[1][0] = 1 + 1 = 2; A[2][0] = 3 + 2 = 5",
+      "inner: A[1][1] = 2 + 3 + 2 - 1 = 6",
+      "inner: A[1][2] = 1 + 6 + 6 - 3 = 10",
+      "inner: A[2][1] = 3 + 6 + 5 - 2 = 12",
+      "inner: A[2][2] = 4 + 10 + 12 - 6 = 20",
+      "answer = [[1, 3, 6], [2, 6, 10], [5, 12, 20]]",
     ],
-    timeComplexity: "O(n)",
-    spaceComplexity: "O(n)",
+    timeComplexity: "O(r * c)",
+    spaceComplexity: "O(r * c)",
     commonMistakes: [
-      "Subtracting at `end` instead of `end + 1`.",
-      "Forgetting the bounds check before using `diff[end + 1]`.",
-      "Returning the raw `diff` array instead of rebuilding the final array.",
-      "Directly updating every value in the range instead of using boundary marks.",
-      "Thinking `diff[9] = -5` means the final answer at index 9 should be -5.",
-      "Updating `result[index]` before adding `diff[index]` to the running total.",
+      "Applying the inner formula on the first row or first column.",
+      "Forgetting that diagonal is added twice by above and left.",
+      "Using addition instead of subtraction for diagonal in inner restore.",
+      "Swapping row/column indexes.",
     ],
   },
   {
     id: 3,
-    title: "Multiple Range Updates, One Rebuild",
+    title: "Line Sweep Max-Overlap Intro",
     difficulty: "Easy",
-    conceptFocus: "Combine several boundary marks and reconstruct once",
-    slug: "multiple-range-updates-one-rebuild",
+    conceptFocus: "Use event sorting and active delta counts to find maximum overlap",
+    slug: "line-sweep-max-overlap-intro",
     description:
-      "Given n = 5 and several updates, return the final zero-filled array after applying all range updates.",
+      "Given a list of inclusive intervals [start, end], return the maximum number of overlapping intervals.",
     conceptBeforeProblem: [
-      "The real power of difference arrays appears when there are multiple range updates.",
-      "The rule does not change: keep adding boundary marks into the same `diff` array.",
-      "diff[start] += delta\nif end + 1 < n:\n    diff[end + 1] -= delta",
-      "Do not rebuild after every update. Mark all update boundaries, then run one prefix-sum pass at the end.",
-      "The running total automatically combines overlapping updates.",
-      "If several updates touch the same boundary index, their marks accumulate in the same `diff` cell.",
-      "A negative delta is still just a delta. The formula does not change; only the arithmetic signs change.",
+      "A line sweep processes only the positions where state changes.",
+      "Each interval becomes two events: (start, +1) and (end, -1).",
+      "For closed intervals, process starts before ends at the same coordinate so overlap at that exact point is counted.",
+      "Sweep by sorted coordinate, then apply each event's `delta` to an active counter.",
     ],
     realWorldContext: [
-      "Imagine a five-day scoreboard starts at zero: [0, 0, 0, 0, 0].",
-      "Several events add or subtract points across day ranges: +3 from day 1 through day 3, +2 from day 0 through day 2, and -1 from day 2 through day 4.",
-      "Some days are affected by more than one event. Difference arrays let those overlaps combine naturally during the prefix rebuild.",
+      "Think of customers in a cafe with inclusive arrival/departure windows.",
+      "At a time point, +1 means a new customer enters and -1 means one leaves after that time point.",
+      "The maximum active count during the sweep is the answer.",
     ],
     beginnerHint: [
-      "Handle each update using the same two boundary rules.",
-      "Do not special-case negative `delta`; the same rule still works.",
-      "For delta = -1, `diff[start] += -1` starts the negative change and `diff[end + 1] -= -1` would stop it if that index exists.",
-      "In this sample, the last update ends at index 4, so end + 1 is outside the array and the stop mark is skipped.",
-      "Do not erase old marks before applying the next update.",
-      "Wait until all updates are marked before doing the prefix rebuild.",
+      "Create both start and end events for each interval.",
+      "Sort by coordinate ascending, and for ties place +1 before -1.",
+      "Walk the events in order, updating `active` and `maxActive`.",
     ],
     applyConcept: [
-      "Start with diff = [0, 0, 0, 0, 0].",
-      "After [1, 3, 3]: [0, 3, 0, 0, -3].",
-      "After [0, 2, 2]: [2, 3, 0, -2, -3].",
-      "After [2, 4, -1]: [2, 3, -1, -2, -3].",
-      "Prefix rebuild gives [2, 5, 4, 2, -1].",
-      "Index 2 is a good overlap check: +3 and +2 are active, then -1 also starts there, so the final value is 4.",
-      "The final -1 at index 4 happens because the +3 update stops there, the +2 update has already stopped, and the -1 update is still active.",
+      "Intervals: [[1,4], [2,6], [4,7], [4,5], [5,8]]",
+      "Events: (1,+1), (4,-1), (2,+1), (6,-1), (4,+1), (7,-1), (4,+1), (5,-1), (5,+1), (8,-1)",
+      "Sorted with tie rule: (1,+1), (2,+1), (4,+1), (4,+1), (4,-1), (5,+1), (5,-1), (6,-1), (7,-1), (8,-1)",
+      "active sequence: 1, 2, 3, 4, 3, 4, 3, 2, 1, 0",
+      "maxActive = 4",
     ],
-    inputSpec: "n: int; updates: int[][] where each update is [start, end, delta]",
-    outputSpec: "int[] final values after all updates",
-    sampleInput: `n = 5
-updates = [
-    [1, 3, 3],
-    [0, 2, 2],
-    [2, 4, -1],
-]`,
-    sampleOutput: "[2, 5, 4, 2, -1]",
-    javaSolution: `public static int[] applyRangeUpdates(int n, int[][] updates) {
-    int[] diff = new int[n];
+    inputSpec: "intervals: int[][]",
+    outputSpec: "int maximumOverlap",
+    sampleInput: `intervals = [[1,4], [2,6], [4,7], [4,5], [5,8]]`,
+    sampleOutput: "4",
+    javaSolution: `import java.util.ArrayList;
+import java.util.List;
 
-    for (int[] update : updates) {
-        int start = update[0];
-        int end = update[1];
-        int delta = update[2];
+public static int maxOverlap(int[][] intervals) {
+    List<int[]> events = new ArrayList<>();
 
-        // Start this update's effect.
-        diff[start] += delta;
+    for (int[] interval : intervals) {
+        // Start event: this interval becomes active.
+        events.add(new int[]{interval[0], 1});
 
-        // Stop this update's effect after the inclusive range.
-        if (end + 1 < n) {
-            diff[end + 1] -= delta;
+        // End event: this interval stops after this coordinate for closed intervals.
+        events.add(new int[]{interval[1], -1});
+    }
+
+    // Sort by coordinate; for a tie, start (+1) comes before stop (-1).
+    events.sort((a, b) -> {
+        if (a[0] != b[0]) {
+            return Integer.compare(a[0], b[0]);
         }
+        return Integer.compare(b[1], a[1]);
+    });
+
+    int active = 0;
+    int maxActive = 0;
+
+    for (int[] event : events) {
+        active += event[1];
+        maxActive = Math.max(maxActive, active);
     }
 
-    int[] result = new int[n];
-    int running = 0;
-
-    for (int index = 0; index < n; index++) {
-        running += diff[index];
-        result[index] = running;
-    }
-
-    return result;
+    return maxActive;
 }`,
-    pythonSolution: `def apply_range_updates(n: int, updates: list[list[int]]) -> list[int]:
-    diff = [0] * n
+    pythonSolution: `def max_overlap(intervals: list[list[int]]) -> int:
+    events = []
 
-    for update in updates:
-        start = update[0]
-        end = update[1]
-        delta = update[2]
+    for start, end in intervals:
+        # Start event at interval start.
+        events.append((start, 1))
+        # End event at the inclusive end.
+        events.append((end, -1))
 
-        # Start this update's effect.
-        diff[start] += delta
+    # Sort by coordinate; start (+1) before stop (-1) at same coordinate.
+    events.sort(key=lambda event: (event[0], -event[1]))
 
-        # Stop this update's effect after the inclusive range.
-        if end + 1 < n:
-            diff[end + 1] -= delta
+    active = 0
+    max_active = 0
 
-    result = [0] * n
-    running = 0
+    for _coord, delta in events:
+        active += delta
+        max_active = max(max_active, active)
 
-    for index in range(n):
-        running += diff[index]
-        result[index] = running
-
-    return result`,
+    return max_active`,
     explanation: [
-      "Create a zero-filled `diff` array of length `n`.",
-      "For each update, read `start`, `end`, and `delta`.",
-      "Add `delta` at `start`.",
-      "Subtract `delta` at `end + 1` only if that index is inside the array.",
-      "After all updates are marked, run one prefix-sum pass.",
-      "Store each running total in the final result array.",
-      "Return the result.",
-      "The total work is O(m) for marking updates plus O(n) for rebuilding the final array.",
-      "Overlaps need no separate branch because the running total is already the sum of all active deltas.",
+      "Create an empty event list.",
+      "For each interval, add `(start, +1)` and `(end, -1)`.",
+      "Sort events by position, then by delta descending so +1 comes first.",
+      "Sweep through events, updating running active count.",
+      "Track the maximum active count after each event.",
+      "Return `maxActive`.",
     ],
     traceAscii: [
-      "$ n = 5, updates = [[1,3,3], [0,2,2], [2,4,-1]]",
-      "> start diff",
-      "  [0, 0, 0, 0, 0]",
-      "> update [1,3,3]: diff[1] += 3, diff[4] -= 3",
-      "  [0, 3, 0, 0, -3]",
-      "> update [0,2,2]: diff[0] += 2, diff[3] -= 2",
-      "  [2, 3, 0, -2, -3]",
-      "> update [2,4,-1]: diff[2] += -1, end+1 = 5 so skip stop mark",
-      "  [2, 3, -1, -2, -3]",
-      "> prefix rebuild",
-      "  running values = 2, 5, 4, 2, -1",
-      ">= final array [2, 5, 4, 2, -1]",
+      "sorted events:",
+      "(1,+1), (2,+1), (4,+1), (4,+1), (4,-1), (5,+1), (5,-1), (6,-1), (7,-1), (8,-1)",
+      "active starts at 0",
+      "(1,+1) -> active 1, max = 1",
+      "(2,+1) -> active 2, max = 2",
+      "(4,+1) -> active 3, max = 3",
+      "(4,+1) -> active 4, max = 4",
+      "(4,-1) -> active 3, max = 4",
+      "(5,+1) -> active 4, max = 4",
+      "(5,-1) -> active 3, max = 4",
+      "(6,-1) -> active 2, max = 4",
+      "(7,-1) -> active 1, max = 4",
+      "(8,-1) -> active 0, max = 4",
+      "answer = 4",
     ],
-    timeComplexity: "O(n + m)",
+    timeComplexity: "O(n log n)",
     spaceComplexity: "O(n)",
     commonMistakes: [
-      "Rebuilding the final array after every update instead of once at the end.",
-      "Clearing `diff` between updates.",
-      "Forgetting that overlapping ranges should add together.",
-      "Changing the rule for negative `delta`; the same boundary formula still applies.",
-      "Subtracting at `end` instead of `end + 1`.",
-      "Skipping a start mark when the delta is negative.",
-      "Forgetting that `diff[end + 1] -= -1` would add 1 if the stop mark were in bounds.",
+      "Processing end events before start events at equal coordinates for closed intervals.",
+      "Forgetting to define interval closure (open vs closed) before answering.",
+      "Updating max before applying the event delta.",
+      "Dropping the second event for any interval.",
     ],
   },
 ];
