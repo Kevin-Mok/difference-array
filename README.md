@@ -2,7 +2,7 @@
 
 Difference Arrays Live Lesson is a frontend-only teaching deck for helping students move from direct range updates to boundary marks and one prefix-sum rebuild. It is built for instructors, interview-prep mentors, and curriculum reviewers who want to see a clear algorithm lesson expressed as typed content, guided classroom pacing, runnable examples, and presenter/student views instead of a static worksheet.
 
-The repo is worth reviewing because it turns a beginner algorithm topic into an interactive, two-hour teaching flow with Java-first reference solutions, Python comparison code, ASCII traces, problem cards, and teacher notes. The implementation shows how structured content data can drive a polished learning experience without requiring a backend, external APIs, or runtime configuration.
+The repo is worth reviewing because it turns a beginner algorithm topic into an interactive, 2.5-hour teaching flow with Java-first reference solutions, Python comparison code, ASCII traces, problem cards, and teacher notes. The implementation shows how structured content data can drive a polished learning experience without requiring a backend, external APIs, or runtime configuration.
 
 ## Tech Stack And Why Chosen
 
@@ -15,18 +15,18 @@ The repo is worth reviewing because it turns a beginner algorithm topic into an 
 
 ## What The Site Teaches
 
-The lesson keeps the same three-problem progression throughout the app:
+The lesson follows Cindy's four-part 1D sequence throughout the app:
 
-1. **Build the Change List**: understand what a difference array stores.
-2. **One Range Update With Boundary Marks**: apply one range update and rebuild with prefix sums.
-3. **Multiple Range Updates, One Rebuild**: combine several boundary marks and reconstruct once.
+1. **1D Difference Build + Restore**: build a change list from final values, then rebuild the original with prefix sums.
+2. **Maximum Population Year**: treat births and deaths as year-by-year deltas and keep the earliest max year.
+3. **Beams of Light**: use clipped inclusive range updates to answer parking-spot illumination queries.
+4. **Meeting Rooms II**: use sparse event deltas to find peak active meeting demand.
 
 The central memory phrase is:
 
 ```text
-Mark where the change starts.
-Mark where the change stops.
-Prefix-sum once to rebuild.
+Store changes first.
+Rebuild values later.
 ```
 
 ## Install From Source
@@ -89,19 +89,21 @@ npm run dev -- -p 3001
 1. Run `npm install` if dependencies are not installed.
 2. Run `npm run dev`.
 3. Open the local URL printed by Next.js.
-4. Confirm the hero says Difference Arrays, not Sliding Window.
-5. Confirm exactly three problem cards appear.
-6. In presenter view, step through each problem's explanation phase.
-7. Confirm Java is the primary solution and Python is available as a reference.
-8. Confirm the traces end with `[4, 3, 0, 3]`, `[0, 0, 5, 5, 5, 5, 5, 5, 5, 0]`, and `[2, 5, 4, 2, -1]`.
+4. Confirm the hero says `Difference Arrays 1D: Store Changes, Rebuild Values`.
+5. Confirm exactly four problem cards appear in Cindy's order: Build + Restore, Maximum Population Year, Beams of Light, Meeting Rooms II.
+6. Confirm the cards show Teach/Try/Solve practice chips and source links for the LeetCode/DMOJ problems.
+7. In presenter view, step through each problem's explanation phase.
+8. Confirm Java is the primary solution and Python is available as a reference.
+9. Confirm the Beams of Light trace includes the sample query answers `Y`, `N`, `N`, `Y`.
 
 ## Repository Map
 
 - `app/`: Next.js layout, page entrypoint, and global styles.
 - `components/`: lesson deck, problem card, code block, and visualizer components.
 - `data/`: typed lesson flow and problem content used by the UI.
-- `docs/codepad-java-exercises.md`: three paste-ready Java CoderPad exercises with JUnit test files.
+- `docs/codepad-java-exercises.md`: legacy paste-ready Java CoderPad exercises for the earlier range-update practice set.
 - `docs/smoke-tests.md`: manual verification checks for student-facing lesson interactions.
 - `prompts/difference-arrays-lesson-plan.md`: original curriculum source.
 - `prompts/convert-difference-arrays-lesson-plan-to-site.md`: conversion prompt that guided the site structure.
+- `prompts/refresh-cindy-1d-updated-files/`: generated refresh archive contents preserved for comparison and future regeneration.
 - `docs/line-sweep-transcript.md`: generated transcript for line-sweep walkthrough content.

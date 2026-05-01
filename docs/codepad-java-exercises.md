@@ -1,5 +1,7 @@
 # Difference Arrays CoderPad Java Exercises
 
+> Note: this is a legacy helper for the earlier range-update CoderPad set. The live site now follows Cindy's four-part 1D lesson path: 1D Build + Restore, Maximum Population Year, Beams of Light, and Meeting Rooms II.
+
 Each exercise is a standalone CoderPad setup. For each one, replace the starter files in these exact locations:
 
 - `src/main/java/com/coderpad/app/Main.java`
