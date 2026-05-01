@@ -1,94 +1,185 @@
-# Difference Arrays: Mega GPT Revision Prompt
+# Convert Difference Arrays Lesson Plan to Site: Implementation Planning Prompt
 
-Use this as the single prompt payload for GPT whenever you request a full lesson refresh.
+Use this prompt after the 1D-focused Difference Arrays lesson plan has been refreshed.
 
-### Scope
+The goal is to produce a careful site implementation plan, and only implement code when the user explicitly asks for an implementation pass.
 
-Update only these two files:
+## Current prompt-update pass scope
 
-- `difference-arrays-lesson-plan.md`
-- `convert-difference-arrays-lesson-plan-to-site.md`
+For the prompt-refresh pass that produced this file, only files under `prompts/` may be edited. Do not edit `data/`, `components/`, `app/`, `pages/`, CSS, package files, or tests during the prompt-refresh pass.
 
-Do not edit data files, components, or app routing.
+## Future site conversion goal
 
-### Required attachments (max 10 files)
+Convert the updated four-item 1D lesson into the existing app structure.
 
-- `docs/cindy.md`
-- `docs/line-sweep-transcript.md`
-- `docs/line-sweep-notes.pdf`
+The required lesson sequence is:
+
+1. Generate a 1D diff array, then regenerate the original array using prefix sum.
+2. LeetCode 1854, Maximum Population Year — CoderPad **try**.
+3. CCC 2026 S2, Beams of Light — CoderPad **solve**.
+4. LeetCode Meeting Rooms II — CoderPad **try**.
+
+Cindy's `docs/cindy.md` `# 1D Problems` section is the source of truth when older files disagree.
+
+## Required references
+
+Inspect these files before proposing or making site changes:
+
 - `data/lessonFlow.ts`
 - `data/problems.ts`
 - `components/LessonFlowDeck.tsx`
 - `components/ProblemCard.tsx`
 - `components/CodeBlock.tsx`
-- `difference-arrays-lesson-plan.md`
-- `convert-difference-arrays-lesson-plan-to-site.md`
+- the refreshed `prompts/difference-arrays-lesson-plan.md`
+- the refreshed lesson-plan content, if a separate generated lesson plan exists
 
-If the PDF has poor OCR, use transcript text as the operational source for Problem 3.
+## Existing contracts to preserve
 
-### Final required format
+Preserve existing component and data contracts unless there is a clear, small, justified reason to change them.
 
-- Keep exactly these three problems in order:
-  1. 1D difference + restore
-  2. 2D difference + restore
-  3. Line Sweep max-overlap intro
-- Keep Java as primary solution language with inline comments on important steps.
-- Keep Python as a secondary solution.
-- Keep the lesson in card-friendly, short-block format.
+Important shapes from the current app:
 
-### File contract for `difference-arrays-lesson-plan.md`
+- `DifferenceArraysProblem` in `data/problems.ts`
+  - `id`
+  - `title`
+  - `difficulty`
+  - `conceptFocus`
+  - `slug`
+  - optional `codepadLinks`
+  - `description`
+  - `conceptBeforeProblem`
+  - `realWorldContext`
+  - `beginnerHint`
+  - `applyConcept`
+  - `inputSpec`
+  - `outputSpec`
+  - `sampleInput`
+  - `sampleOutput`
+  - `pythonSolution`
+  - `javaSolution`
+  - `explanation`
+  - `traceAscii`
+  - `timeComplexity`
+  - `spaceComplexity`
+  - optional `commonMistakes`
+- `LessonStep`, `ProblemWorkshop`, and `LessonFlowSummary` in `data/lessonFlow.ts`
+- `ProblemCard` renders problem metadata, sample I/O, complexity, and optional CoderPad links.
+- `CodeBlock` supports `java` and `python` highlighting.
+- `LessonFlowDeck` should continue to consume the existing lesson-flow and problem structures.
 
-Must include:
+## Planning output requirements
 
-- Title
-- Audience
-- Learning Goals
-- Problem 1
-- Problem 2
-- Problem 3
-- Closing Summary
-- Instructor Notes
+Before any implementation, produce a plan that includes:
 
-Each problem section must include:
+- files to update
+- fields or sections to update in each file
+- whether schema changes are needed
+- how each of the four lesson items maps to `problems.ts`
+- how the lesson sequence maps to `lessonFlow.ts`
+- how CoderPad try/solve expectations will be represented
+- any component changes, only if necessary
+- a short risk list and validation checklist
 
-- concept-before
-- real-world context
-- problem statement
-- beginner hint
-- apply concept
-- input
-- output
-- sample input
-- sample output
-- step-by-step explanation
-- Java solution
-- Python solution
-- ASCII trace
-- time complexity
-- space complexity
-- common mistakes
+## Expected data mapping
 
-### Problem constraints
+### `data/problems.ts`
 
-- Problem 1: reverse operation is explicit (recover original from diff) and includes pre-intro showing how original -> diff is built.
-- Problem 2: reverse operation for 2D with explicit boundary cases:
-  - `(0,0)`
-  - first row
-  - first column
-  - inner matrix cells
-- Problem 2 must explain above/left/diagonal with visuals/text and provide both formulas:
-  - `diff[r][c] = A[r][c] - A[r-1][c] - A[r][c-1] + A[r-1][c-1]`
-  - `A[r][c] = diff[r][c] + A[r-1][c] + A[r][c-1] - A[r-1][c-1]`
-- Problem 3: event model for line sweep, start and end events, sorted order, start-before-end tie handling at same coordinate.
+Replace the old required trio with four 1D-focused problem cards:
 
-### Non-goals
+1. `1d-difference-build-restore`
+   - concept foundation
+   - no CoderPad requirement unless a link is supplied
+2. `maximum-population-year`
+   - LeetCode 1854
+   - CoderPad try
+3. `beams-of-light`
+   - CCC 2026 S2
+   - CoderPad solve
+4. `meeting-rooms-ii`
+   - LeetCode Meeting Rooms II
+   - CoderPad try
 
-- no 4th problem
-- no advanced-range structures
-- no rewrite away from existing flow conventions
+Keep Java as the primary teaching solution. Keep Python solution strings if the existing data interface requires them.
 
-### Success
+Do not invent CoderPad URLs. If links are unavailable, either omit `codepadLinks` or use a clearly marked TODO only if the project convention supports TODO placeholders.
 
-- Problem 1 and 2 are internally consistent examples: build-to-reverse and reverse-to-build checks.
-- Problem 3 uses interval events and returns the correct max overlap.
-- Prompt and lesson files match and do not contradict each other.
+### `data/lessonFlow.ts`
+
+Update the flow so it supports the same four-item sequence:
+
+- concept-first intro to diff arrays
+- boundary marks and prefix rebuild
+- Maximum Population Year try workshop
+- Beams of Light solve workshop
+- Meeting Rooms II try workshop
+- wrap-up comparing the same mental model across all problems
+
+Ensure `problemWorkshops` references the new slugs in order.
+
+### Components
+
+Do not change components unless the current UI cannot represent the new lesson requirements.
+
+If a component change is justified, keep it targeted. Examples of acceptable small changes:
+
+- display a CoderPad label such as `Try` or `Solve` if the data model is extended
+- render an extra problem card without layout breakage
+- support a short practice-type tag
+
+Avoid broad redesigns.
+
+## Problem fact anchors to preserve in the site content
+
+### 1D foundation
+
+- `diff[0] = nums[0]`
+- `diff[i] = nums[i] - nums[i - 1]`
+- prefix sum restores values
+- range add uses `diff[l] += value` and `diff[r + 1] -= value`
+
+### Maximum Population Year
+
+- birth adds `+1`
+- death adds `-1`
+- death year is excluded
+- earliest year wins ties
+- scan years in increasing order
+
+### Beams of Light
+
+- spots are `1..N`
+- clipped interval is `[max(P - S, 1), min(P + S, N)]`
+- each light adds one to coverage across that interval
+- query result is `Y` when coverage is greater than zero, else `N`
+- use `O(N + L + Q)` prefix preprocessing
+
+### Meeting Rooms II
+
+- room count equals peak active meetings
+- start adds demand
+- end removes demand
+- end at time `t` frees a room for start at time `t`
+- if using sorted events, process end before start on equal times
+- if using a delta map, `delta[start] += 1` and `delta[end] -= 1` naturally handles same-time reuse when summed at each time
+
+## Validation checklist
+
+After implementation, verify:
+
+- the app shows exactly four problems in Cindy's order
+- no required 2D difference problem remains
+- no fixed generic line-sweep max-overlap problem remains as Problem 3
+- Java code is present and emphasized
+- code blocks still render correctly
+- CoderPad links are not invented
+- samples and outputs match the named problem statements
+- `workshopOrder` and problem slugs agree
+- TypeScript builds without schema/type errors
+
+## Non-goals
+
+- Do not implement during a prompt-only pass.
+- Do not add extra problems.
+- Do not introduce advanced data structures as required content.
+- Do not rewrite the app architecture.
+- Do not remove Python fields unless the data contract is intentionally changed and justified.

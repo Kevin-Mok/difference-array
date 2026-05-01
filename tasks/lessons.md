@@ -17,3 +17,7 @@
 - Avoid wide plain-text tables inside reveal cards; use short grouped lines when the content must fit narrow slide panels.
 - When a lesson is about reverse operations, keep both directions present (build then restore) before moving to the next abstraction.
 - When user-requested lesson refresh includes a "mega prompt", record the exact attachment list and fixed problem order as part of the requested assets.
+- When a mega prompt is itself part of a max-file upload set, count the mega prompt file against the limit and list only the remaining reference files.
+- When a lesson-refresh prompt should be beginner-friendly, explicitly allow helpful online resources/search for simple explanatory language while keeping repo notes as the source of required structure.
+- When a lesson-refresh prompt names online problems, include problem-specific search guidance for those exact problems and the facts the future writer should preserve.
+- When a prompt is for a lesson-plan refresh before a later site conversion, keep the prompt scoped to generating the lesson plan only and reserve site/data/component implementation for the separate conversion pass.

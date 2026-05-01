@@ -148,13 +148,13 @@ https://dmoj.ca/problem/ccc26s2
 # 1D Problems
 - generate 1D diff array, regen original array using prefix sum
     - teach
-- Leetcode maximum-population-year
+- Leetcode 1854 - maximum-population-year
     - https://leetcode.com/problems/maximum-population-year/description/
     - Codepad to try
 - CCC 26 S2 - Beams of Light
     - https://dmoj.ca/problem/ccc26s2
     - Codepad to solve
-- Meeting Rooms II - 
+- Leetcode Meeting Rooms II -
   - a medium-difficulty algorithmic 
   problem on LeetCode. It asks for the minimum number 
   of conference rooms required to schedule a list of 
