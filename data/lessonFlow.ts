@@ -191,7 +191,7 @@ export const lessonFlow: LessonFlowSummary = {
         "Connect build/restore mechanics to LeetCode 1854, where births and deaths are population changes over time.",
       studentContext: [
         "What stays the same: we still store changes first and rebuild actual values with a running total. Example: `+1` at 1960 means population starts increasing there.",
-        "What changes: indexes are years instead of array positions. Example: year 1960 maps to index `1960 - 1950 = 10`.",
+        "What changes: indexes are years instead of array positions. LeetCode gives the year range `1950 <= birth < death <= 2050`, so `1950` is the minimum bound, not an arbitrary offset. Example: year 1960 maps to index `1960 - 1950 = 10`.",
         "Artifact that carries forward: the change list. Example: `diff[10] += 1` is the same kind of boundary mark as `diff[start] += delta`.",
         "Interval convention changes the stop mark: a person is alive through `death - 1`, so add `-1` at `death`, not at `death + 1`.",
       ],

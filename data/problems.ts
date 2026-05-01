@@ -85,6 +85,7 @@ export const problems: DifferenceArraysProblem[] = [
 
 public class DifferenceArrayBasics {
     public static int[] buildDifference(int[] nums) {
+        // diff stores changes between adjacent values instead of copying every final value.
         int[] diff = new int[nums.length];
 
         // diff[0] is the anchor: the first final value.
@@ -128,6 +129,7 @@ public class DifferenceArrayBasics {
         int running = 0;
 
         for (int index = 0; index < n; index++) {
+            // Prefix sum turns the boundary marks into each final value.
             running += diff[index];
             values[index] = running;
         }
@@ -136,6 +138,7 @@ public class DifferenceArrayBasics {
     }
 
     public static boolean roundTripCheck(int[] nums) {
+        // If the diff array is correct, build then restore returns the original array.
         int[] diff = buildDifference(nums);
         int[] restored = restoreFromDifference(diff);
         return Arrays.equals(nums, restored);
@@ -154,6 +157,7 @@ public class DifferenceArrayBasics {
     }
 }`,
     pythonSolution: String.raw`def build_difference(nums: list[int]) -> list[int]:
+    # diff stores changes between adjacent values instead of copying every final value.
     diff = [0] * len(nums)
 
     # diff[0] is the anchor: the first final value.
@@ -173,21 +177,28 @@ def restore_from_difference(diff: list[int]) -> list[int]:
     for index, change in enumerate(diff):
         # Prefix sum: add the stored change into the running total.
         running += change
+
+        # The running total is the actual restored value at this index.
         restored[index] = running
 
     return restored
 
 
 def apply_single_range_add(n: int, start: int, end: int, delta: int) -> list[int]:
+    # One extra slot lets us safely mark end + 1 when end is the last included index.
     diff = [0] * (n + 1)
 
     # The update shape is [start, end, delta].
+    # Add delta at start so the running total begins applying it there.
     diff[start] += delta
-    diff[end + 1] -= delta  # stop after end, where end is the last included index
+
+    # Subtract delta at end + 1 to stop applying it after end.
+    diff[end + 1] -= delta
 
     values = [0] * n
     running = 0
     for index in range(n):
+        # Prefix sum turns the boundary marks into each final value.
         running += diff[index]
         values[index] = running
 
@@ -195,6 +206,7 @@ def apply_single_range_add(n: int, start: int, end: int, delta: int) -> list[int
 
 
 def round_trip_check(nums: list[int]) -> bool:
+    # If the diff array is correct, build then restore returns the original list.
     return restore_from_difference(build_difference(nums)) == nums`,
     explanation: [
       "Build step: set `diff[0] = nums[0]`; for `[4, 7, 7, 10]`, add `4` to `diff[0]`.",
@@ -244,7 +256,8 @@ def round_trip_check(nums: list[int]) -> bool:
     description:
       "Given birth/death logs, return the earliest year with the maximum living population.",
     conceptBeforeProblem: [
-      "This is the same change-list idea, but the indexes are years. Example: index `0` can represent year 1950.",
+      "This is the same change-list idea, but the indexes are years. LeetCode gives the constraint `1950 <= birth < death <= 2050`, so these are problem bounds, not arbitrary constants.",
+      "Example: index `0` can represent year 1950.",
       "A birth year adds `+1` because one more person becomes alive. Example: birth `1960` means add `+1` to `diff[1960 - 1950]`.",
       "A death year adds `-1` because the death year is excluded. Example: death `1971` means add `-1` to `diff[1971 - 1950]`.",
       "The alive interval is `[birth, death - 1]`. Example: `[1950, 1961]` counts 1950 through 1960, not 1961.",
@@ -256,7 +269,7 @@ def round_trip_check(nums: list[int]) -> bool:
       "Scanning years from 1950 upward naturally preserves the earliest year when ties happen.",
     ],
     beginnerHint: [
-      "Use an offset: `index = year - 1950`. Example: year 1950 maps to index 0 and year 1960 maps to index 10.",
+      "Use an offset from LeetCode's minimum allowed year: `index = year - 1950`. Example: year 1950 maps to index 0 and year 1960 maps to index 10.",
       "Mark birth with `+1`; mark death with `-1`. Do not use `death + 1`, because the death year is already excluded.",
       "Update the answer only when `current > best`. Example: if 1970 ties 1960, keep 1960.",
       "Operation count check: checking every person for every year is about `101 * logs.length`; marking each person twice plus one year scan is about `2 * logs.length + 101`.",
@@ -274,9 +287,11 @@ def round_trip_check(nums: list[int]) -> bool:
     sampleOutput: "1993",
     javaSolution: String.raw`class Solution {
     public int maximumPopulation(int[][] logs) {
+        // LeetCode gives this fixed year range, so years can be offset into a small array.
         int startYear = 1950;
         int endYear = 2050;
 
+        // Difference array idea: store population changes, not full population counts yet.
         // +2 gives a safe sentinel slot for the death mark at 2050.
         int[] diff = new int[endYear - startYear + 2];
 
@@ -296,6 +311,7 @@ def round_trip_check(nums: list[int]) -> bool:
         int answer = startYear;
 
         for (int year = startYear; year <= endYear; year++) {
+            // Prefix sum rebuilds the actual population for this year.
             current += diff[year - startYear];
 
             // Strictly greater preserves the earliest year during ties.
@@ -310,8 +326,12 @@ def round_trip_check(nums: list[int]) -> bool:
 }`,
     pythonSolution: String.raw`class Solution:
     def maximumPopulation(self, logs: list[list[int]]) -> int:
+        # LeetCode gives this fixed year range, so years can be offset into a small array.
         start_year = 1950
         end_year = 2050
+
+        # Difference array idea: store population changes, not full population counts yet.
+        # +2 gives a safe sentinel slot for the death mark at 2050.
         diff = [0] * (end_year - start_year + 2)
 
         for birth, death in logs:
@@ -326,6 +346,7 @@ def round_trip_check(nums: list[int]) -> bool:
         answer = start_year
 
         for year in range(start_year, end_year + 1):
+            # Prefix sum rebuilds the actual population for this year.
             current += diff[year - start_year]
 
             # Strict > keeps the earliest year when populations tie.
@@ -335,7 +356,7 @@ def round_trip_check(nums: list[int]) -> bool:
 
         return answer`,
     explanation: [
-      "Create a sentinel-safe difference array for years 1950 through 2050.",
+      "Create a sentinel-safe difference array for LeetCode's given year range, 1950 through 2050.",
       "For each log `[birth, death]`, add `+1` at `birth - 1950`.",
       "For each log `[birth, death]`, add `-1` at `death - 1950` because the death year is not counted.",
       "Scan from 1950 upward while maintaining `current` population.",
@@ -410,6 +431,7 @@ def round_trip_check(nums: list[int]) -> bool:
 import java.io.IOException;
 
 public class Main {
+    // Fast input keeps the focus on the O(N + L + Q) difference-array solution.
     private static class FastScanner {
         private final BufferedInputStream input = new BufferedInputStream(System.in);
         private final byte[] buffer = new byte[1 << 16];
@@ -455,6 +477,7 @@ public class Main {
         int lights = scanner.nextInt();
         int questions = scanner.nextInt();
 
+        // diff stores coverage changes, not final coverage for every spot yet.
         // 1-indexed spots plus one sentinel slot for right + 1.
         int[] diff = new int[n + 2];
 
@@ -462,11 +485,15 @@ public class Main {
             int position = scanner.nextInt();
             int spread = scanner.nextInt();
 
+            // Clip the light's reach so the interval stays inside parking spots 1..n.
             int left = Math.max(position - spread, 1);
             int right = Math.min(position + spread, n);
 
             // The light covers [left, right], where right is the last included spot.
+            // Add at left to start this light's coverage.
             diff[left] += 1;
+
+            // Subtract after right to stop this light's coverage.
             diff[right + 1] -= 1;
         }
 
@@ -474,6 +501,7 @@ public class Main {
         int running = 0;
 
         for (int spot = 1; spot <= n; spot++) {
+            // Prefix sum rebuilds the actual number of lights covering this spot.
             running += diff[spot];
             coverage[spot] = running;
         }
@@ -481,6 +509,8 @@ public class Main {
         StringBuilder output = new StringBuilder();
         for (int i = 0; i < questions; i++) {
             int spot = scanner.nextInt();
+
+            // Any positive coverage means at least one light reaches the queried spot.
             output.append(coverage[spot] > 0 ? 'Y' : 'N').append('\n');
         }
 
@@ -490,6 +520,7 @@ public class Main {
     pythonSolution: String.raw`import sys
 
 def solve() -> None:
+    # Read all integers once so input handling stays O(total input size).
     data = list(map(int, sys.stdin.buffer.read().split()))
     index = 0
 
@@ -500,6 +531,8 @@ def solve() -> None:
     questions = data[index]
     index += 1
 
+    # diff stores coverage changes, not final coverage for every spot yet.
+    # n + 2 supports 1-indexed spots and the right + 1 sentinel.
     diff = [0] * (n + 2)
 
     for _ in range(lights):
@@ -507,15 +540,18 @@ def solve() -> None:
         spread = data[index + 1]
         index += 2
 
+        # Clip the light's reach so the interval stays inside parking spots 1..n.
         left = max(position - spread, 1)
         right = min(position + spread, n)
 
+        # Add at left to start coverage, then subtract after right to stop it.
         diff[left] += 1
-        diff[right + 1] -= 1  # stop after right, the last included spot
+        diff[right + 1] -= 1
 
     coverage = [0] * (n + 1)
     running = 0
     for spot in range(1, n + 1):
+        # Prefix sum rebuilds the actual number of lights covering this spot.
         running += diff[spot]
         coverage[spot] = running
 
@@ -523,6 +559,8 @@ def solve() -> None:
     for _ in range(questions):
         spot = data[index]
         index += 1
+
+        # Any positive coverage means at least one light reaches the queried spot.
         answers.append("Y" if coverage[spot] > 0 else "N")
 
     print("\n".join(answers))
@@ -624,7 +662,10 @@ class Solution {
         int maxRooms = 0;
 
         for (Map.Entry<Integer, Integer> event : delta.entrySet()) {
+            // Sorted prefix sum over event times gives active meetings after each change.
             active += event.getValue();
+
+            // The peak active count is the minimum number of rooms needed.
             maxRooms = Math.max(maxRooms, active);
         }
 
@@ -634,6 +675,7 @@ class Solution {
     pythonSolution: String.raw`from collections import defaultdict
 
 def min_meeting_rooms(intervals: list[list[int]]) -> int:
+    # Sparse difference array: only store times where room demand changes.
     delta = defaultdict(int)
 
     for start, end in intervals:
@@ -647,7 +689,10 @@ def min_meeting_rooms(intervals: list[list[int]]) -> int:
     max_rooms = 0
 
     for time in sorted(delta):
+        # Sorted prefix sum over event times gives active meetings after each change.
         active += delta[time]
+
+        # The peak active count is the minimum number of rooms needed.
         max_rooms = max(max_rooms, active)
 
     return max_rooms`,
